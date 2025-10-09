@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, DollarSign, TrendingUp } from "lucide-react";
+import { Pencil, Trash2, DollarSign, TrendingUp, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import EditStudentDialog from "./EditStudentDialog";
 import FeePaymentDialog from "./FeePaymentDialog";
 import StudentPromotionDialog from "./StudentPromotionDialog";
+import StudentDetailsDialog from "./StudentDetailsDialog";
 
 interface Student {
   id: string;
@@ -34,6 +35,7 @@ const StudentTable = ({ students, onRefetch }: StudentTableProps) => {
   const [editStudent, setEditStudent] = useState<Student | null>(null);
   const [feePaymentStudent, setFeePaymentStudent] = useState<Student | null>(null);
   const [promotionStudent, setPromotionStudent] = useState<Student | null>(null);
+  const [viewDetailsStudent, setViewDetailsStudent] = useState<Student | null>(null);
   const [carryForwardMap, setCarryForwardMap] = useState<Record<string, number>>({});
 
   useEffect(() => {

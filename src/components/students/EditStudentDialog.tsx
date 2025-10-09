@@ -39,6 +39,7 @@ const EditStudentDialog = ({ open, onOpenChange, student, onSuccess }: EditStude
     contact: "",
     address: "",
     total_fee: "",
+    photo_url: "",
     remarks: "",
   });
 
@@ -53,6 +54,7 @@ const EditStudentDialog = ({ open, onOpenChange, student, onSuccess }: EditStude
         contact: student.contact || "",
         address: student.address || "",
         total_fee: student.total_fee.toString(),
+        photo_url: (student as any).photo_url || "",
         remarks: student.remarks || "",
       });
     }
@@ -74,6 +76,7 @@ const EditStudentDialog = ({ open, onOpenChange, student, onSuccess }: EditStude
         contact: formData.contact || null,
         address: formData.address || null,
         total_fee: parseFloat(formData.total_fee) || 0,
+        photo_url: formData.photo_url || null,
         remarks: formData.remarks || null,
       })
       .eq("id", student.id);
@@ -166,6 +169,16 @@ const EditStudentDialog = ({ open, onOpenChange, student, onSuccess }: EditStude
                 required
               />
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="photo_url">Photo URL</Label>
+            <Input
+              id="photo_url"
+              type="url"
+              placeholder="https://example.com/photo.jpg"
+              value={formData.photo_url}
+              onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="address">Address</Label>

@@ -90,35 +90,25 @@ class DataService {
   }
 
   async updateStudent(id: string, updates: Partial<Student>): Promise<Student> {
-    const updatedStudent = {
+    // Update offline database
+    await offlineDb.students.update(id, {
       ...updates,
-      id,
       updated_at: new Date().toISOString(),
       _offline_updated: true,
       _sync_pending: 1,
       _last_sync: new Date().toISOString()
-    };
+    });
 
-    // Update offline database
-    await offlineDb.students.update(id, updatedStudent);
+    const updatedStudent = await offlineDb.students.get(id);
 
     // If online, try to sync immediately
-    if (navigator.onLine && this.config.autoSync) {
+    if (navigator.onLine && this.config.autoSync && updatedStudent) {
       try {
         const { error } = await supabase
           .from('students')
           .update({
-            name: updatedStudent.name,
-            roll_number: updatedStudent.roll_number,
-            class: updatedStudent.class,
-            section: updatedStudent.section,
-            contact: updatedStudent.contact,
-            address: updatedStudent.address,
-            total_fee: updatedStudent.total_fee,
-            fee_paid: updatedStudent.fee_paid,
-            attendance_percentage: updatedStudent.attendance_percentage,
-            remarks: updatedStudent.remarks,
-            updated_at: updatedStudent.updated_at
+            ...updates,
+            updated_at: new Date().toISOString()
           })
           .eq('id', id);
 
@@ -170,10 +160,9 @@ class DataService {
         return await offlineDb.feePayments
           .where('student_id')
           .equals(studentId)
-          .orderBy('created_at')
           .toArray();
       }
-      return await offlineDb.feePayments.orderBy('created_at').toArray();
+      return await offlineDb.feePayments.toArray();
     }
 
     try {
@@ -192,10 +181,9 @@ class DataService {
         return await offlineDb.feePayments
           .where('student_id')
           .equals(studentId)
-          .orderBy('created_at')
           .toArray();
       }
-      return await offlineDb.feePayments.orderBy('created_at').toArray();
+      return await offlineDb.feePayments.toArray();
     }
   }
 
@@ -246,16 +234,14 @@ class DataService {
   // Attendance operations
   async getAttendanceRecords(studentId?: string, date?: string): Promise<AttendanceRecord[]> {
     if (this.config.useOffline || !navigator.onLine) {
-      let query = offlineDb.attendanceRecords.orderBy('created_at');
-      
       if (studentId) {
-        query = offlineDb.attendanceRecords
+        return await offlineDb.attendanceRecords
           .where('student_id')
           .equals(studentId)
-          .orderBy('created_at');
+          .toArray();
       }
       
-      return await query.toArray();
+      return await offlineDb.attendanceRecords.toArray();
     }
 
     try {
@@ -274,16 +260,13 @@ class DataService {
       return data || [];
     } catch (error) {
       console.error('Failed to fetch attendance online, falling back to offline:', error);
-      let query = offlineDb.attendanceRecords.orderBy('created_at');
+      let results = await offlineDb.attendanceRecords.toArray();
       
       if (studentId) {
-        query = offlineDb.attendanceRecords
-          .where('student_id')
-          .equals(studentId)
-          .orderBy('created_at');
+        results = results.filter(r => r.student_id === studentId);
       }
       
-      return await query.toArray();
+      return results;
     }
   }
 
@@ -339,7 +322,7 @@ class DataService {
 
   async downloadAllData() {
     if (navigator.onLine) {
-      await syncService.downloadAllData();
+      await syncService.syncAllData();
     }
   }
 

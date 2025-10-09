@@ -21,7 +21,7 @@ export interface Student {
   _offline_created?: boolean;
   _offline_updated?: boolean;
   _offline_deleted?: boolean;
-  _sync_pending?: boolean;
+  _sync_pending?: number; // 0 or 1 for Dexie indexing
   _last_sync?: string;
 }
 
@@ -38,7 +38,7 @@ export interface FeePayment {
   _offline_created?: boolean;
   _offline_updated?: boolean;
   _offline_deleted?: boolean;
-  _sync_pending?: boolean;
+  _sync_pending?: number; // 0 or 1 for Dexie indexing
   _last_sync?: string;
 }
 
@@ -54,7 +54,7 @@ export interface AttendanceRecord {
   _offline_created?: boolean;
   _offline_updated?: boolean;
   _offline_deleted?: boolean;
-  _sync_pending?: boolean;
+  _sync_pending?: number; // 0 or 1 for Dexie indexing
   _last_sync?: string;
 }
 
@@ -87,37 +87,37 @@ export class OfflineDatabase extends Dexie {
     // Add hooks for automatic sync tracking
     this.students.hook('creating', (primKey, obj, trans) => {
       (obj as any)._offline_created = true;
-      (obj as any)._sync_pending = true;
+      (obj as any)._sync_pending = 1;
       (obj as any)._last_sync = new Date().toISOString();
     });
 
     this.students.hook('updating', (modifications, primKey, obj, trans) => {
       (modifications as any)._offline_updated = true;
-      (modifications as any)._sync_pending = true;
+      (modifications as any)._sync_pending = 1;
       (modifications as any)._last_sync = new Date().toISOString();
     });
 
     this.feePayments.hook('creating', (primKey, obj, trans) => {
       (obj as any)._offline_created = true;
-      (obj as any)._sync_pending = true;
+      (obj as any)._sync_pending = 1;
       (obj as any)._last_sync = new Date().toISOString();
     });
 
     this.feePayments.hook('updating', (modifications, primKey, obj, trans) => {
       (modifications as any)._offline_updated = true;
-      (modifications as any)._sync_pending = true;
+      (modifications as any)._sync_pending = 1;
       (modifications as any)._last_sync = new Date().toISOString();
     });
 
     this.attendanceRecords.hook('creating', (primKey, obj, trans) => {
       (obj as any)._offline_created = true;
-      (obj as any)._sync_pending = true;
+      (obj as any)._sync_pending = 1;
       (obj as any)._last_sync = new Date().toISOString();
     });
 
     this.attendanceRecords.hook('updating', (modifications, primKey, obj, trans) => {
       (modifications as any)._offline_updated = true;
-      (modifications as any)._sync_pending = true;
+      (modifications as any)._sync_pending = 1;
       (modifications as any)._last_sync = new Date().toISOString();
     });
   }

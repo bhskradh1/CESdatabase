@@ -89,7 +89,7 @@ class SyncService {
   }
 
   private async syncStudents() {
-    const pendingStudents = await offlineDb.students.where('_sync_pending').equals(true).toArray();
+    const pendingStudents = await offlineDb.students.where('_sync_pending').equals(1).toArray();
 
     for (const student of pendingStudents) {
       try {
@@ -146,7 +146,7 @@ class SyncService {
   }
 
   private async syncFeePayments() {
-    const pendingPayments = await offlineDb.feePayments.where('_sync_pending').equals(true).toArray();
+    const pendingPayments = await offlineDb.feePayments.where('_sync_pending').equals(1).toArray();
 
     for (const payment of pendingPayments) {
       try {
@@ -176,7 +176,7 @@ class SyncService {
   }
 
   private async syncAttendanceRecords() {
-    const pendingAttendance = await offlineDb.attendanceRecords.where('_sync_pending').equals(true).toArray();
+    const pendingAttendance = await offlineDb.attendanceRecords.where('_sync_pending').equals(1).toArray();
 
     for (const record of pendingAttendance) {
       try {

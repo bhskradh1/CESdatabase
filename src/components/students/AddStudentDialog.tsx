@@ -26,6 +26,7 @@ const AddStudentDialog = ({ open, onOpenChange, onSuccess, userId }: AddStudentD
     contact: "",
     address: "",
     total_fee: "",
+    photo_url: "",
     remarks: "",
   });
 
@@ -43,6 +44,7 @@ const AddStudentDialog = ({ open, onOpenChange, onSuccess, userId }: AddStudentD
         contact: formData.contact || null,
         address: formData.address || null,
         total_fee: parseFloat(formData.total_fee) || 0,
+        photo_url: formData.photo_url || null,
         remarks: formData.remarks || null,
         created_by: userId,
       });
@@ -63,6 +65,7 @@ const AddStudentDialog = ({ open, onOpenChange, onSuccess, userId }: AddStudentD
         contact: "",
         address: "",
         total_fee: "",
+        photo_url: "",
         remarks: "",
       });
 
@@ -158,6 +161,16 @@ const AddStudentDialog = ({ open, onOpenChange, onSuccess, userId }: AddStudentD
                 step="0.01"
                 value={formData.total_fee}
                 onChange={(e) => setFormData({ ...formData, total_fee: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2 col-span-2">
+              <Label htmlFor="photo_url">Photo URL</Label>
+              <Input
+                id="photo_url"
+                type="url"
+                placeholder="https://example.com/photo.jpg"
+                value={formData.photo_url}
+                onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
               />
             </div>
             <div className="space-y-2 col-span-2">

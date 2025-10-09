@@ -79,9 +79,9 @@ const PaymentStats = ({ payments }: PaymentStatsProps) => {
           <CreditCard className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold capitalize">{mostUsedMethod[0]}</div>
+          <div className="text-2xl font-bold capitalize">{String(mostUsedMethod[0])}</div>
           <p className="text-xs text-muted-foreground">
-            {mostUsedMethod[1]} transactions
+            {String(mostUsedMethod[1])} transactions
           </p>
         </CardContent>
       </Card>

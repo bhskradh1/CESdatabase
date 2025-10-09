@@ -294,6 +294,7 @@ export type Database = {
           id: string
           payment_date: string
           payment_method: string | null
+          receipt_number: string | null
           remarks: string | null
           student_id: string
         }
@@ -304,6 +305,7 @@ export type Database = {
           id?: string
           payment_date?: string
           payment_method?: string | null
+          receipt_number?: string | null
           remarks?: string | null
           student_id: string
         }
@@ -314,6 +316,7 @@ export type Database = {
           id?: string
           payment_date?: string
           payment_method?: string | null
+          receipt_number?: string | null
           remarks?: string | null
           student_id?: string
         }
@@ -589,6 +592,7 @@ export type Database = {
           fee_paid_current_year: number | null
           id: string
           name: string
+          photo_url: string | null
           previous_year_balance: number | null
           remarks: string | null
           roll_number: string
@@ -608,6 +612,7 @@ export type Database = {
           fee_paid_current_year?: number | null
           id?: string
           name: string
+          photo_url?: string | null
           previous_year_balance?: number | null
           remarks?: string | null
           roll_number: string
@@ -627,6 +632,7 @@ export type Database = {
           fee_paid_current_year?: number | null
           id?: string
           name?: string
+          photo_url?: string | null
           previous_year_balance?: number | null
           remarks?: string | null
           roll_number?: string

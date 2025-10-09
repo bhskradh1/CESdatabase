@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { User } from "@supabase/supabase-js";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import {
   Eye,
   DollarSign,
   Calendar,
-  User,
+  User as UserIcon,
   CreditCard
 } from "lucide-react";
 import PaymentDialog from "@/components/payments/PaymentDialog";
@@ -30,7 +30,7 @@ import ReceiptPrint from "@/components/payments/ReceiptPrint";
 const Payments = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
