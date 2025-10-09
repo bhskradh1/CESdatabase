@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      about_info: {
+        Row: {
+          created_at: string
+          id: string
+          mission: string
+          updated_at: string
+          values: string
+          vision: string
+          welcome_description: string | null
+          welcome_title: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mission: string
+          updated_at?: string
+          values: string
+          vision: string
+          welcome_description?: string | null
+          welcome_title?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mission?: string
+          updated_at?: string
+          values?: string
+          vision?: string
+          welcome_description?: string | null
+          welcome_title?: string | null
+        }
+        Relationships: []
+      }
+      about_media: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          display_order: number
+          id: string
+          is_active: boolean | null
+          media_type: string
+          media_url: string
+          section: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean | null
+          media_type?: string
+          media_url: string
+          section: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean | null
+          media_type?: string
+          media_url?: string
+          section?: string
+          title?: string
+        }
+        Relationships: []
+      }
       attendance_records: {
         Row: {
           created_at: string
@@ -47,10 +119,56 @@ export type Database = {
             foreignKeyName: "attendance_records_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
+            referencedRelation: "student_fee_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_records_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
             referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
+      }
+      child_care_info: {
+        Row: {
+          created_at: string
+          description: string
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          location: string | null
+          tagline: string | null
+          timing: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          tagline?: string | null
+          timing?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          tagline?: string | null
+          timing?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       classes: {
         Row: {
@@ -79,6 +197,39 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          status: string | null
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          status?: string | null
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          status?: string | null
+          subject?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           created_at: string
@@ -87,6 +238,7 @@ export type Database = {
           event_date: string
           event_time: string | null
           id: string
+          image_url: string | null
           is_published: boolean | null
           location: string | null
           target_class_id: string | null
@@ -101,6 +253,7 @@ export type Database = {
           event_date: string
           event_time?: string | null
           id?: string
+          image_url?: string | null
           is_published?: boolean | null
           location?: string | null
           target_class_id?: string | null
@@ -115,6 +268,7 @@ export type Database = {
           event_date?: string
           event_time?: string | null
           id?: string
+          image_url?: string | null
           is_published?: boolean | null
           location?: string | null
           target_class_id?: string | null
@@ -168,10 +322,95 @@ export type Database = {
             foreignKeyName: "fee_payments_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
+            referencedRelation: "student_fee_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_payments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
             referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
+      }
+      gallery: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          display_order: number
+          id: string
+          image_url: string
+          is_published: boolean | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          image_url: string
+          is_published?: boolean | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_published?: boolean | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      leadership: {
+        Row: {
+          created_at: string
+          created_by: string
+          display_order: number
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          message: string | null
+          name: string
+          position: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          message?: string | null
+          name: string
+          position: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          message?: string | null
+          name?: string
+          position?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       notices: {
         Row: {
@@ -179,6 +418,7 @@ export type Database = {
           created_at: string
           created_by: string
           id: string
+          is_important: boolean | null
           is_published: boolean | null
           priority: string | null
           target_class_id: string | null
@@ -191,6 +431,7 @@ export type Database = {
           created_at?: string
           created_by: string
           id?: string
+          is_important?: boolean | null
           is_published?: boolean | null
           priority?: string | null
           target_class_id?: string | null
@@ -203,6 +444,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           id?: string
+          is_important?: boolean | null
           is_published?: boolean | null
           priority?: string | null
           target_class_id?: string | null
@@ -216,6 +458,38 @@ export type Database = {
             columns: ["target_class_id"]
             isOneToOne: false
             referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      popup_images: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string
+          popup_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url: string
+          popup_id: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string
+          popup_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "popup_images_popup_id_fkey"
+            columns: ["popup_id"]
+            isOneToOne: false
+            referencedRelation: "welcome_popup"
             referencedColumns: ["id"]
           },
         ]
@@ -264,6 +538,45 @@ export type Database = {
           },
         ]
       }
+      results: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          file_url: string
+          id: string
+          is_published: boolean | null
+          published_date: string
+          result_type: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          file_url: string
+          id?: string
+          is_published?: boolean | null
+          published_date?: string
+          result_type?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          file_url?: string
+          id?: string
+          is_published?: boolean | null
+          published_date?: string
+          result_type?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           address: string | null
@@ -273,8 +586,10 @@ export type Database = {
           created_at: string
           created_by: string
           fee_paid: number | null
+          fee_paid_current_year: number | null
           id: string
           name: string
+          previous_year_balance: number | null
           remarks: string | null
           roll_number: string
           section: string | null
@@ -290,8 +605,10 @@ export type Database = {
           created_at?: string
           created_by: string
           fee_paid?: number | null
+          fee_paid_current_year?: number | null
           id?: string
           name: string
+          previous_year_balance?: number | null
           remarks?: string | null
           roll_number: string
           section?: string | null
@@ -307,8 +624,10 @@ export type Database = {
           created_at?: string
           created_by?: string
           fee_paid?: number | null
+          fee_paid_current_year?: number | null
           id?: string
           name?: string
+          previous_year_balance?: number | null
           remarks?: string | null
           roll_number?: string
           section?: string | null
@@ -318,13 +637,83 @@ export type Database = {
         }
         Relationships: []
       }
+      welcome_popup: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      student_fee_overview: {
+        Row: {
+          class: string | null
+          current_year_fees: number | null
+          extra_paid: number | null
+          fee_paid_current_year: number | null
+          id: string | null
+          name: string | null
+          outstanding: number | null
+          previous_year_balance: number | null
+          section: string | null
+          student_id: string | null
+          total_due: number | null
+        }
+        Insert: {
+          class?: string | null
+          current_year_fees?: number | null
+          extra_paid?: never
+          fee_paid_current_year?: number | null
+          id?: string | null
+          name?: string | null
+          outstanding?: never
+          previous_year_balance?: number | null
+          section?: string | null
+          student_id?: string | null
+          total_due?: never
+        }
+        Update: {
+          class?: string | null
+          current_year_fees?: number | null
+          extra_paid?: never
+          fee_paid_current_year?: number | null
+          id?: string | null
+          name?: string | null
+          outstanding?: never
+          previous_year_balance?: number | null
+          section?: string | null
+          student_id?: string | null
+          total_due?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_fee_due: {
         Args: { student_uuid: string }
+        Returns: number
+      }
+      calculate_total_due: {
+        Args: {
+          p_current_year_fees: number
+          p_fee_paid_current_year: number
+          p_previous_year_balance: number
+        }
         Returns: number
       }
       get_user_role: {
