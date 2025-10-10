@@ -15,23 +15,31 @@ interface Student {
   address: string | null;
   total_fee: number;
   fee_paid: number;
+  fee_paid_current_year?: number;
+  previous_year_balance?: number;
   attendance_percentage: number;
   remarks: string | null;
   photo_url?: string | null;
-  created_at: string;
+  created_at?: string;
 }
 
 interface StudentDetailsDialogProps {
-  student: Student;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  student: Student | null;
 }
 
-const StudentDetailsDialog = ({ student, onClose }: StudentDetailsDialogProps) => {
-  const feeDue = student.total_fee - student.fee_paid;
+const StudentDetailsDialog = ({ open, onOpenChange, student }: StudentDetailsDialogProps) => {
+  if (!student) return null;
+  
+  // Calculate fees using the new separated fields
+  const paidThisYear = student.fee_paid_current_year ?? student.fee_paid ?? 0;
+  const prevBal = student.previous_year_balance ?? 0;
+  const feeDue = (student.total_fee + prevBal) - paidThisYear;
   const initials = student.name.split(' ').map(n => n[0]).join('').toUpperCase();
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Student Details</DialogTitle>
@@ -107,10 +115,18 @@ const StudentDetailsDialog = ({ student, onClose }: StudentDetailsDialogProps) =
                 <p className="text-xs text-muted-foreground mb-1">Total Fee</p>
                 <p className="text-lg font-bold">₹{student.total_fee.toLocaleString()}</p>
               </div>
+              {prevBal !== 0 && (
+                <div className={`${prevBal > 0 ? 'bg-orange-50 dark:bg-orange-950' : 'bg-blue-50 dark:bg-blue-950'} p-3 rounded-lg`}>
+                  <p className="text-xs text-muted-foreground mb-1">Previous Balance</p>
+                  <p className={`text-lg font-bold ${prevBal > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                    ₹{prevBal.toLocaleString()}
+                  </p>
+                </div>
+              )}
               <div className="bg-green-50 dark:bg-green-950 p-3 rounded-lg">
                 <p className="text-xs text-muted-foreground mb-1">Fee Paid</p>
                 <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                  ₹{student.fee_paid.toLocaleString()}
+                  ₹{paidThisYear.toLocaleString()}
                 </p>
               </div>
               <div className={`${feeDue > 0 ? 'bg-red-50 dark:bg-red-950' : 'bg-green-50 dark:bg-green-950'} p-3 rounded-lg`}>
@@ -143,15 +159,19 @@ const StudentDetailsDialog = ({ student, onClose }: StudentDetailsDialogProps) =
           )}
 
           {/* Additional Info */}
-          <Separator />
-          <div className="text-xs text-muted-foreground flex items-center gap-2">
-            <Calendar className="h-3 w-3" />
-            Created on: {new Date(student.created_at).toLocaleDateString('en-IN', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </div>
+          {student.created_at && (
+            <>
+              <Separator />
+              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                <Calendar className="h-3 w-3" />
+                Created on: {new Date(student.created_at).toLocaleDateString('en-IN', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>

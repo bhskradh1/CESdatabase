@@ -21,8 +21,12 @@ interface Student {
   address: string | null;
   total_fee: number;
   fee_paid: number;
+  fee_paid_current_year?: number;
+  previous_year_balance?: number;
   attendance_percentage: number;
   remarks: string | null;
+  photo_url?: string | null;
+  created_at?: string;
 }
 
 interface StudentTableProps {
@@ -200,6 +204,14 @@ const StudentTable = ({ students, onRefetch }: StudentTableProps) => {
                     <Button
                       variant="ghost"
                       size="icon"
+                      onClick={() => setViewDetailsStudent(student)}
+                      title="View Details"
+                    >
+                      <Eye className="h-4 w-4 text-blue-600" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => setFeePaymentStudent(student)}
                       title="Record Payment"
                     >
@@ -258,6 +270,12 @@ const StudentTable = ({ students, onRefetch }: StudentTableProps) => {
         onOpenChange={(open) => !open && setPromotionStudent(null)}
         student={promotionStudent}
         onSuccess={onRefetch}
+      />
+
+      <StudentDetailsDialog
+        open={!!viewDetailsStudent}
+        onOpenChange={(open) => !open && setViewDetailsStudent(null)}
+        student={viewDetailsStudent}
       />
     </div>
   );
