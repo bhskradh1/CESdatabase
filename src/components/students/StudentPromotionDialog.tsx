@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { calculatePromotionFees } from "@/lib/utils";
 import { Calculator, TrendingUp, TrendingDown, AlertCircle, CheckCircle } from "lucide-react";
 
 interface Student {
@@ -109,8 +108,8 @@ const StudentPromotionDialog = ({ open, onOpenChange, student, onSuccess }: Stud
   const currentFeeDue = student ? student.total_fee - student.fee_paid : 0;
   const carryForwardAmount = currentFeeDue < 0 ? Math.abs(currentFeeDue) : 0;
   const outstandingDue = currentFeeDue > 0 ? currentFeeDue : 0;
-  // Use shared helper to compute total payable for next year after adjustments
-  const adjustedNewFee = calculatePromotionFees(currentFeeDue, newTotalFee);
+  // Total payable for next year = base fee + previous year balance (positive for outstanding, negative for excess)
+  const adjustedNewFee = newTotalFee + currentFeeDue;
 
   const handlePromote = async () => {
     if (!student || !nextClass) return;
@@ -154,6 +153,9 @@ const StudentPromotionDialog = ({ open, onOpenChange, student, onSuccess }: Stud
         counter++;
       }
 
+      // Calculate previous year balance (negative for excess payment, positive for outstanding due)
+      const previousYearBalance = currentFeeDue; // Positive = outstanding, Negative = excess
+
       // Create new student record for next class
       const { data: newStudent, error: createError } = await supabase
         .from("students")
@@ -163,44 +165,16 @@ const StudentPromotionDialog = ({ open, onOpenChange, student, onSuccess }: Stud
           roll_number: newRollNumber || `${nextClass}-${Date.now()}`,
           class: nextClass,
           section: nextSection,
-          total_fee: adjustedNewFee,
-            // Do NOT set fee_paid to previous-year carry-forward here.
-            // Keep fee_paid representing payments made in the current year only.
-            fee_paid: 0,
+          total_fee: newTotalFee, // Use base fee, not adjusted
+          previous_year_balance: previousYearBalance,
+          fee_paid: 0,
+          fee_paid_current_year: 0,
           created_by: session.session?.user.id || "",
         })
         .select()
         .single();
 
       if (createError) throw createError;
-
-      // If there was excess payment, create a fee payment record
-      if (carryForwardAmount > 0) {
-        await supabase
-          .from("fee_payments")
-          .insert({
-            student_id: newStudent.id,
-            amount: carryForwardAmount,
-            payment_method: "carry_forward",
-            payment_date: new Date().toISOString().split("T")[0],
-            remarks: `Carry forward from ${student.class} class`,
-            created_by: session.session?.user.id || "",
-          });
-      }
-
-      // If there was outstanding due, create a fee payment record for the due amount
-      if (outstandingDue > 0) {
-        await supabase
-          .from("fee_payments")
-          .insert({
-            student_id: newStudent.id,
-            amount: outstandingDue,
-            payment_method: "outstanding_due",
-            payment_date: new Date().toISOString().split("T")[0],
-            remarks: `Outstanding due from ${student.class} class`,
-            created_by: session.session?.user.id || "",
-          });
-      }
 
       // Attempt to soft-delete the previous student record by setting `deleted_at`.
       // If the column doesn't exist or update fails, fall back to hard delete.

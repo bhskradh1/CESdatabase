@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { calculatePromotionFees } from "@/lib/utils";
 import { Users, TrendingUp, Calculator, AlertCircle, CheckCircle } from "lucide-react";
 
 interface Student {
@@ -142,9 +141,9 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
         totalOutstanding += feeDue;
         studentsWithOutstanding++;
       }
-  const carryForwardAmount = feeDue < 0 ? Math.abs(feeDue) : 0;
-  const outstandingDue = feeDue > 0 ? feeDue : 0;
-  const adjusted = calculatePromotionFees(feeDue, newTotalFee); // base adjusted via helper
+      const carryForwardAmount = feeDue < 0 ? Math.abs(feeDue) : 0;
+      const outstandingDue = feeDue > 0 ? feeDue : 0;
+      const adjusted = newTotalFee + feeDue; // Total = base fee + previous year balance
       totalBaseNextFees += newTotalFee;
       totalAdjustedNextFees += adjusted;
       // Grand total should include only the adjusted next-year fees (not previous year totals)
@@ -182,9 +181,7 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
       const newStudents = await Promise.all(
         selected.map(async (student, index) => {
           const currentFeeDue = student.total_fee - student.fee_paid;
-          const carryForwardAmount = currentFeeDue < 0 ? Math.abs(currentFeeDue) : 0;
-          const outstandingDue = currentFeeDue > 0 ? currentFeeDue : 0;
-          const adjustedNewFee = calculatePromotionFees(currentFeeDue, newTotalFee);
+          const previousYearBalance = currentFeeDue; // Positive = outstanding, Negative = excess
 
           // Generate unique student ID for next class
           const baseStudentId = student.student_id;
@@ -213,42 +210,16 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
               roll_number: `${nextClass}-${student.roll_number}`,
               class: nextClass,
               section: nextSection,
-              total_fee: adjustedNewFee,
-              // Keep fee_paid representing payments made in the current year only.
+              total_fee: newTotalFee, // Use base fee, not adjusted
+              previous_year_balance: previousYearBalance,
               fee_paid: 0,
+              fee_paid_current_year: 0,
               created_by: session.session?.user.id || "",
             })
             .select()
             .single();
 
           if (createError) throw createError;
-
-          // Create fee payment records if needed
-          if (carryForwardAmount > 0) {
-            await supabase
-              .from("fee_payments")
-              .insert({
-                student_id: newStudent.id,
-                amount: carryForwardAmount,
-                payment_method: "carry_forward",
-                payment_date: new Date().toISOString().split("T")[0],
-                remarks: `Carry forward from ${student.class} class`,
-                created_by: session.session?.user.id || "",
-              });
-          }
-
-          if (outstandingDue > 0) {
-            await supabase
-              .from("fee_payments")
-              .insert({
-                student_id: newStudent.id,
-                amount: outstandingDue,
-                payment_method: "outstanding_due",
-                payment_date: new Date().toISOString().split("T")[0],
-                remarks: `Outstanding due from ${student.class} class`,
-                created_by: session.session?.user.id || "",
-              });
-          }
 
           // Attempt soft-delete first, fall back to hard-delete. If both fail, rollback the new student.
           try {
@@ -408,7 +379,7 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
                   
                   const carryForwardAmount = feeDue < 0 ? Math.abs(feeDue) : 0;
                   const outstandingDue = feeDue > 0 ? feeDue : 0;
-                  const adjusted = newTotalFee - carryForwardAmount + outstandingDue;
+                  const adjusted = newTotalFee + feeDue; // Total = base fee + previous year balance
 
                   return (
                     <div
