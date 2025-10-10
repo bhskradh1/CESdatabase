@@ -119,7 +119,7 @@ const FeePaymentDialog = ({ open, onOpenChange, student, onSuccess }: FeePayment
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Record Fee Payment</DialogTitle>
         </DialogHeader>

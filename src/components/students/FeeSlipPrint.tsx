@@ -52,24 +52,35 @@ const FeeSlipPrint = ({ payment, onClose }: FeeSlipPrintProps) => {
             .signature-line { border-bottom: 1px dashed #000; width: 200px; margin: 15px 0 5px 0; }
             .print-only { display: block; }
            @media print {
+             @page {
+               size: A4;
+               margin: 0;
+             }
+             
              body {
                margin: 0;
                padding: 0;
-              }
-
-            .receipt {
-              width: 100%;
-              height: 50%;           /* Half of A4 page */
-              page-break-after: always; /* Ensures next receipt prints on next half if needed */
-              box-sizing: border-box;
-              padding: 15px;
-             overflow: hidden;
-             border-bottom: 1px dashed #ccc; /* optional: shows bottom half is blank */
              }
 
-           .no-print {
-             display: none;
-               }
+             .receipt {
+               width: 100%;
+               box-sizing: border-box;
+               padding: 15px;
+               overflow: visible;
+               page-break-after: avoid;
+               page-break-inside: avoid;
+             }
+
+             .no-print {
+               display: none;
+             }
+             
+             /* Hide dialog overlay during print */
+             [data-radix-popper-content-wrapper],
+             [data-state="open"][role="dialog"] {
+               position: static !important;
+               transform: none !important;
+             }
            }
 
             
@@ -105,7 +116,7 @@ const FeeSlipPrint = ({ payment, onClose }: FeeSlipPrintProps) => {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto print:!max-w-full print:!max-h-full print:overflow-visible">
         <div className="flex justify-end gap-2 print:hidden no-print mb-4">
           <Button onClick={handlePrint} size="sm">
             <Printer className="mr-2 h-4 w-4" />
