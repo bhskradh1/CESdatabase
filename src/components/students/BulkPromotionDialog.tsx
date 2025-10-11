@@ -18,6 +18,11 @@ interface Student {
   section: string | null;
   total_fee: number;
   fee_paid: number;
+  contact: string | null;
+  photo_url: string | null;
+  address: string | null;
+  previous_year_balance?: number;
+  fee_paid_current_year?: number;
 }
 
 interface BulkPromotionDialogProps {
@@ -133,7 +138,7 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
     let grandTotalAll = 0;
 
     selected.forEach(student => {
-      const feeDue = student.total_fee - student.fee_paid;
+      const feeDue = student.total_fee - (student.fee_paid_current_year ?? student.fee_paid ?? 0);
       if (feeDue < 0) {
         totalExcess += Math.abs(feeDue);
         studentsWithExcess++;
@@ -162,6 +167,12 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
     };
   };
 
+  // Helper function to generate student ID with format: C + first two letters of class + roll number
+  const generateStudentId = (className: string, rollNumber: string): string => {
+    const classPrefix = className.slice(0, 2).toUpperCase();
+    return `C${classPrefix}${rollNumber}`;
+  };
+
   const handleBulkPromote = async () => {
     if (selectedStudents.length === 0) {
       toast({
@@ -179,37 +190,24 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
       
       // Create new student records for next class
       const newStudents = await Promise.all(
-        selected.map(async (student, index) => {
-          const currentFeeDue = student.total_fee - student.fee_paid;
+        selected.map(async (student) => {
+          const currentFeeDue = student.total_fee - (student.fee_paid_current_year ?? student.fee_paid ?? 0);
           const previousYearBalance = currentFeeDue; // Positive = outstanding, Negative = excess
 
-          // Generate unique student ID for next class
-          const baseStudentId = student.student_id;
-          let newStudentId = `${baseStudentId}-${nextClass}`;
-          
-          // Check if this new student ID already exists
-          let counter = 1;
-          let finalStudentId = newStudentId;
-          while (true) {
-            const { data: checkExisting } = await supabase
-              .from("students")
-              .select("id")
-              .eq("student_id", finalStudentId)
-              .single();
-            
-            if (!checkExisting) break;
-            finalStudentId = `${newStudentId}-${counter}`;
-            counter++;
-          }
+          // Generate new student ID with format: C + first two letters of class + roll number
+          const newStudentId = generateStudentId(nextClass, student.roll_number);
 
           const { data: newStudent, error: createError } = await supabase
             .from("students")
             .insert({
-              student_id: finalStudentId,
+              student_id: newStudentId,
               name: student.name,
-              roll_number: `${nextClass}-${student.roll_number}`,
+              roll_number: student.roll_number, // Keep same roll number
               class: nextClass,
-              section: nextSection,
+              section: student.section || nextSection, // Keep same section or use default
+              contact: student.contact, // Keep same contact
+              address: student.address, // Keep same address
+              photo_url: student.photo_url, // Keep same photo
               total_fee: newTotalFee, // Use base fee, not adjusted
               previous_year_balance: previousYearBalance,
               fee_paid: 0,
@@ -374,7 +372,7 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
             <CardContent>
               <div className="space-y-2 max-h-80 overflow-y-auto">
                 {students.map((student) => {
-                  const feeDue = student.total_fee - student.fee_paid;
+                  const feeDue = student.total_fee - (student.fee_paid_current_year ?? student.fee_paid ?? 0);
                   const isSelected = selectedStudents.includes(student.id);
                   
                   const carryForwardAmount = feeDue < 0 ? Math.abs(feeDue) : 0;
@@ -402,7 +400,7 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
                           </div>
                           <div className="text-right">
                             <p className="text-sm font-medium">
-                              Rs. {student.fee_paid.toLocaleString()} / {student.total_fee.toLocaleString()}
+                              Rs. {(student.fee_paid_current_year ?? student.fee_paid ?? 0).toLocaleString()} / {student.total_fee.toLocaleString()}
                             </p>
                             {feeDue < 0 ? (
                               <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">
