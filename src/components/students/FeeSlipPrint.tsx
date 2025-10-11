@@ -17,6 +17,8 @@ interface FeeSlipPrintProps {
     created_at: string;
     total_fee: number;
     fee_paid: number;
+    fee_paid_current_year?: number;
+    previous_year_balance?: number;
     receipt_number?: string;
   };
   onClose: () => void;
@@ -111,7 +113,12 @@ const FeeSlipPrint = ({ payment, onClose }: FeeSlipPrintProps) => {
     });
   };
 
-  const feeDue = payment.total_fee - (payment.fee_paid + payment.amount);
+  // Calculate fee due with previous year balance
+  const paidThisYear = payment.fee_paid_current_year ?? payment.fee_paid ?? 0;
+  const prevBalance = payment.previous_year_balance ?? 0;
+  const totalDue = payment.total_fee + prevBalance;
+  const totalPaidIncludingThis = paidThisYear + payment.amount;
+  const feeDue = totalDue - totalPaidIncludingThis;
 
 
   return (
@@ -192,20 +199,30 @@ const FeeSlipPrint = ({ payment, onClose }: FeeSlipPrintProps) => {
               
               <div className="space-y-2 print:space-y-1">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground print:text-xs">Total Fee:</span>
+                  <span className="text-muted-foreground print:text-xs">Current Year Fee:</span>
                   <span className="font-semibold print:text-sm">Rs. {payment.total_fee.toLocaleString()}</span>
                 </div>
+                {prevBalance !== 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground print:text-xs">Previous Year Balance:</span>
+                    <span className={`font-semibold print:text-sm ${prevBalance < 0 ? 'text-green-600' : 'text-orange-600'}`}>
+                      Rs. {Math.abs(prevBalance).toLocaleString()} {prevBalance < 0 ? '(Excess)' : '(Due)'}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground print:text-xs">Previously Paid:</span>
-                  <span className="font-semibold print:text-sm">Rs. {payment.fee_paid.toLocaleString()}</span>
+                  <span className="text-muted-foreground print:text-xs">Previously Paid (This Year):</span>
+                  <span className="font-semibold print:text-sm">Rs. {paidThisYear.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between border-t pt-2 print:pt-1">
-                  <span className="text-base font-bold print:text-sm">Amount Paid:</span>
+                  <span className="text-base font-bold print:text-sm">Amount Paid Now:</span>
                   <span className="text-xl font-bold text-primary print:text-lg">Rs. {payment.amount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground print:text-xs">Remaining Due:</span>
-                  <span className="font-semibold text-destructive print:text-sm">Rs. {feeDue.toLocaleString()}</span>
+                  <span className={`font-semibold print:text-sm ${feeDue > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                    Rs. {Math.abs(feeDue).toLocaleString()} {feeDue < 0 ? '(Excess Paid)' : ''}
+                  </span>
                 </div>
               </div>
             </div>

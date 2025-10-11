@@ -94,6 +94,8 @@ const FeePaymentDialog = ({ open, onOpenChange, student, onSuccess }: FeePayment
         section: student.section,
         total_fee: student.total_fee,
         fee_paid: student.fee_paid,
+        fee_paid_current_year: student.fee_paid_current_year,
+        previous_year_balance: student.previous_year_balance,
         created_at: data.created_at,
       });
       setShowSlip(true);
