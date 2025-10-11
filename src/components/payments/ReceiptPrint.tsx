@@ -10,6 +10,7 @@ interface ReceiptPrintProps {
     payment_method: string;
     remarks: string | null;
     created_at: string;
+    receipt_number: string | null;
     students: {
       id: string;
       student_id: string;
@@ -115,7 +116,7 @@ const ReceiptPrint = ({ payment, open, onOpenChange }: ReceiptPrintProps) => {
             <h1 className="text-3xl font-bold text-primary mb-1 print:text-2xl">Champion English School</h1>
             <p className="text-lg text-muted-foreground print:text-base">Fee Payment Receipt</p>
             <p className="text-sm text-muted-foreground mt-1 print:text-xs">
-              Receipt No: {payment.id.slice(0, 8).toUpperCase()} | 
+              Receipt No: {payment.receipt_number || payment.id.slice(0, 8).toUpperCase()} | 
               Date: {formatDate(payment.payment_date)} | 
               Time: {formatTime(payment.created_at)}
             </p>

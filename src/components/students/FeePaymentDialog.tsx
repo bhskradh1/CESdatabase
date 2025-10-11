@@ -19,6 +19,8 @@ interface Student {
   contact: string | null;
   total_fee: number;
   fee_paid: number;
+  fee_paid_current_year?: number;
+  previous_year_balance?: number;
 }
 
 interface FeePaymentDialogProps {
@@ -115,7 +117,10 @@ const FeePaymentDialog = ({ open, onOpenChange, student, onSuccess }: FeePayment
     return <FeeSlipPrint payment={paymentData} onClose={handleClose} />;
   }
 
-  const feeDue = student ? student.total_fee - student.fee_paid : 0;
+  // Calculate fee due including previous year balance
+  const paidThisYear = student ? (student.fee_paid_current_year ?? student.fee_paid ?? 0) : 0;
+  const prevBalance = student ? (student.previous_year_balance ?? 0) : 0;
+  const feeDue = student ? (student.total_fee + prevBalance) - paidThisYear : 0;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -141,16 +146,26 @@ const FeePaymentDialog = ({ open, onOpenChange, student, onSuccess }: FeePayment
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Total Fee:</span>
+                <span className="text-sm text-muted-foreground">Current Year Fee:</span>
                 <span className="font-medium">Rs. {student.total_fee.toLocaleString()}</span>
               </div>
+              {prevBalance !== 0 && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Previous Year Balance:</span>
+                  <span className={`font-medium ${prevBalance < 0 ? 'text-green-600' : 'text-orange-600'}`}>
+                    Rs. {Math.abs(prevBalance).toLocaleString()} {prevBalance < 0 ? '(Excess)' : '(Due)'}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Already Paid:</span>
-                <span className="font-medium">Rs. {student.fee_paid.toLocaleString()}</span>
+                <span className="text-sm text-muted-foreground">Already Paid (This Year):</span>
+                <span className="font-medium">Rs. {paidThisYear.toLocaleString()}</span>
               </div>
               <div className="flex justify-between border-t pt-2">
-                <span className="text-sm font-semibold">Fee Due:</span>
-                <span className="font-bold text-destructive">Rs. {feeDue.toLocaleString()}</span>
+                <span className="text-sm font-semibold">Total Due:</span>
+                <span className={`font-bold ${feeDue > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                  Rs. {Math.abs(feeDue).toLocaleString()} {feeDue < 0 ? '(Excess)' : ''}
+                </span>
               </div>
             </div>
 
