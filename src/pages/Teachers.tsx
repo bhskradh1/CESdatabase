@@ -5,18 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Plus, ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import type { Database } from '@/integrations/supabase/types';
 
-interface Teacher {
-  id: string;
-  name: string;
-  subject: string;
-  contact: string;
-  email: string;
-  qualification: string;
-  experience: number;
-  photo_url?: string;
-  created_at: string;
-}
+type Teacher = Database['public']['Tables']['teachers']['Row'];
 
 export default function Teachers() {
   const navigate = useNavigate();

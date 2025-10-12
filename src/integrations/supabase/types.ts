@@ -643,6 +643,48 @@ export type Database = {
         }
         Relationships: []
       }
+      teachers: {
+        Row: {
+          contact: string
+          created_at: string
+          created_by: string
+          email: string
+          experience: number
+          id: string
+          name: string
+          photo_url: string | null
+          qualification: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          contact: string
+          created_at?: string
+          created_by: string
+          email: string
+          experience?: number
+          id?: string
+          name: string
+          photo_url?: string | null
+          qualification: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          contact?: string
+          created_at?: string
+          created_by?: string
+          email?: string
+          experience?: number
+          id?: string
+          name?: string
+          photo_url?: string | null
+          qualification?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       welcome_popup: {
         Row: {
           created_at: string

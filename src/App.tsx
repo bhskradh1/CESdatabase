@@ -11,6 +11,7 @@ import Students from "./pages/Students";
 import Attendance from "./pages/Attendance";
 import Payments from "./pages/Payments";
 import Reports from "./pages/Reports";
+import Teachers from "./pages/Teachers";
 import NotFound from "./pages/NotFound";
 import OfflineIndicator from "./components/OfflineIndicator";
 import { dataService } from "./lib/data-service";
@@ -65,6 +66,7 @@ const App = () => {
               <Route path="/students" element={<Students />} />
               <Route path="/attendance" element={<Attendance />} />
               <Route path="/payments" element={<Payments />} />
+              <Route path="/teachers" element={<Teachers />} />
               <Route path="/reports" element={<Reports />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
