@@ -7,9 +7,10 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StudentTable from "@/components/students/StudentTable";
 import AddStudentDialog from "@/components/students/AddStudentDialog";
 import ExcelUploadDialog from "@/components/students/ExcelUploadDialog";
+import DeleteAllStudentsDialog from "@/components/students/DeleteAllStudentsDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Upload, TrendingUp } from "lucide-react";
+import { Plus, Search, Upload, TrendingUp, Trash2 } from "lucide-react";
 
 import FilterSection from "@/components/students/FilterSection";
 import BulkPromotionDialog from "@/components/students/BulkPromotionDialog";
@@ -20,6 +21,7 @@ const Students = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [excelDialogOpen, setExcelDialogOpen] = useState(false);
   const [bulkPromotionOpen, setBulkPromotionOpen] = useState(false);
+  const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [feeStatusFilter, setFeeStatusFilter] = useState("all");
   const [attendanceFilter, setAttendanceFilter] = useState("all");
@@ -73,6 +75,10 @@ const Students = () => {
             <p className="text-muted-foreground">Add, view, edit, and manage student information</p>
           </div>
           <div className="flex gap-2">
+            <Button onClick={() => setDeleteAllDialogOpen(true)} variant="destructive" size="lg">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete All
+            </Button>
             <Button onClick={() => setBulkPromotionOpen(true)} variant="outline" size="lg">
               <TrendingUp className="mr-2 h-4 w-4" />
               Bulk Promote
@@ -150,6 +156,7 @@ const Students = () => {
         />
         <AddStudentDialog open={dialogOpen} onOpenChange={setDialogOpen} onSuccess={refetch} userId={user?.id || ""} />
         <ExcelUploadDialog open={excelDialogOpen} onOpenChange={setExcelDialogOpen} onSuccess={refetch} userId={user?.id || ""} />
+        <DeleteAllStudentsDialog open={deleteAllDialogOpen} onOpenChange={setDeleteAllDialogOpen} onSuccess={refetch} />
         
         {classFilter !== "all" && (
           <BulkPromotionDialog

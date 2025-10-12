@@ -26,6 +26,7 @@ interface StudentData {
   contact?: string;
   address?: string;
   total_fee?: number;
+  photo_url?: string;
   remarks?: string;
 }
 
@@ -171,6 +172,12 @@ const ExcelUploadDialog = ({ open, onOpenChange, onSuccess, userId }: ExcelUploa
               case 'totalfee':
               case 'fee':
                 student.total_fee = value ? parseFloat(value) : 0;
+                break;
+              case 'photo_url':
+              case 'photourl':
+              case 'photo':
+              case 'image_url':
+                student.photo_url = value?.toString() || '';
                 break;
               case 'remarks':
               case 'notes':
