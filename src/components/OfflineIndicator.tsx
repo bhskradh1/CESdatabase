@@ -48,11 +48,11 @@ export const OfflineIndicator = () => {
           <TooltipTrigger asChild>
             <div className="flex items-center gap-1">
               {syncStatus.isOnline ? (
-                <Wifi className="h-4 w-4 text-green-500" />
+                <Wifi className="h-4 w-4 text-primary" />
               ) : (
-                <WifiOff className="h-4 w-4 text-red-500" />
+                <WifiOff className="h-4 w-4 text-destructive" />
               )}
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium text-foreground">
                 {syncStatus.isOnline ? 'Online' : 'Offline'}
               </span>
             </div>
@@ -71,7 +71,7 @@ export const OfflineIndicator = () => {
         {syncStatus.pendingChanges > 0 && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+              <Badge variant="secondary" className="bg-accent text-accent-foreground border border-border">
                 <AlertCircle className="h-3 w-3 mr-1" />
                 {syncStatus.pendingChanges} pending
               </Badge>
