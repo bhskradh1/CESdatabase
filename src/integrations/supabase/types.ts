@@ -580,6 +580,53 @@ export type Database = {
         }
         Relationships: []
       }
+      salary_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          id: string
+          month: string
+          payment_date: string
+          payment_method: string | null
+          remarks: string | null
+          teacher_id: string
+          year: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by: string
+          id?: string
+          month: string
+          payment_date?: string
+          payment_method?: string | null
+          remarks?: string | null
+          teacher_id: string
+          year: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          id?: string
+          month?: string
+          payment_date?: string
+          payment_method?: string | null
+          remarks?: string | null
+          teacher_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salary_payments_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           address: string | null
@@ -645,42 +692,54 @@ export type Database = {
       }
       teachers: {
         Row: {
+          class_taught: string | null
           contact: string
           created_at: string
           created_by: string
           email: string
           experience: number
           id: string
+          level: string | null
           name: string
           photo_url: string | null
           qualification: string
+          salary: number | null
           subject: string
+          teacher_id: string | null
           updated_at: string
         }
         Insert: {
+          class_taught?: string | null
           contact: string
           created_at?: string
           created_by: string
           email: string
           experience?: number
           id?: string
+          level?: string | null
           name: string
           photo_url?: string | null
           qualification: string
+          salary?: number | null
           subject: string
+          teacher_id?: string | null
           updated_at?: string
         }
         Update: {
+          class_taught?: string | null
           contact?: string
           created_at?: string
           created_by?: string
           email?: string
           experience?: number
           id?: string
+          level?: string | null
           name?: string
           photo_url?: string | null
           qualification?: string
+          salary?: number | null
           subject?: string
+          teacher_id?: string | null
           updated_at?: string
         }
         Relationships: []

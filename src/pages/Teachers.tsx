@@ -1,103 +1,113 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Plus, ArrowLeft } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
-import type { Database } from '@/integrations/supabase/types';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { useQuery } from "@tanstack/react-query";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import TeacherTable from "@/components/teachers/TeacherTable";
+import AddTeacherDialog from "@/components/teachers/AddTeacherDialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus, Search } from "lucide-react";
+import type { Database } from "@/integrations/supabase/types";
 
 type Teacher = Database['public']['Tables']['teachers']['Row'];
 
-export default function Teachers() {
+const Teachers = () => {
   const navigate = useNavigate();
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    checkAuth();
-    fetchTeachers();
-  }, []);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setUser(session.user);
+      }
+    });
 
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate('/auth');
-    }
-  };
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setUser(session.user);
+      }
+    });
 
-  const fetchTeachers = async () => {
-    try {
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const { data: teachers = [], refetch } = useQuery<Teacher[]>({
+    queryKey: ["teachers"],
+    queryFn: async (): Promise<Teacher[]> => {
       const { data, error } = await supabase
-        .from('teachers')
-        .select('*')
-        .order('name');
+        .from("teachers")
+        .select("*")
+        .order("name");
 
       if (error) throw error;
-      setTeachers(data || []);
-    } catch (error) {
-      console.error('Error fetching teachers:', error);
-      toast.error('Failed to load teachers');
-    } finally {
-      setLoading(false);
-    }
+      return data as Teacher[];
+    },
+  });
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
   };
 
+  const filteredTeachers = teachers.filter((teacher) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      teacher.name.toLowerCase().includes(query) ||
+      teacher.teacher_id?.toLowerCase().includes(query) ||
+      teacher.subject.toLowerCase().includes(query) ||
+      teacher.level?.toLowerCase().includes(query) ||
+      teacher.class_taught?.toLowerCase().includes(query)
+    );
+  });
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+      <DashboardHeader user={user} onSignOut={handleSignOut} />
+
+      <main className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate('/dashboard')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <h1 className="text-3xl font-bold text-foreground">Teachers</h1>
+          <div>
+            <h2 className="text-3xl font-bold mb-2">Teacher Management</h2>
+            <p className="text-muted-foreground">Add, view, edit, and manage teacher information</p>
           </div>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
+          <Button onClick={() => setDialogOpen(true)} size="lg">
+            <Plus className="mr-2 h-4 w-4" />
             Add Teacher
           </Button>
         </div>
 
-        {loading ? (
-          <div className="text-center py-12 text-muted-foreground">Loading teachers...</div>
-        ) : teachers.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground">No teachers found. Add your first teacher to get started.</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {teachers.map((teacher) => (
-              <Card key={teacher.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    {teacher.photo_url && (
-                      <img
-                        src={teacher.photo_url}
-                        alt={teacher.name}
-                        className="h-12 w-12 rounded-full object-cover"
-                      />
-                    )}
-                    <span>{teacher.name}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="font-medium">Subject:</span> {teacher.subject}</p>
-                    <p><span className="font-medium">Contact:</span> {teacher.contact}</p>
-                    <p><span className="font-medium">Email:</span> {teacher.email}</p>
-                    <p><span className="font-medium">Qualification:</span> {teacher.qualification}</p>
-                    <p><span className="font-medium">Experience:</span> {teacher.experience} years</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by name, ID, subject, level, or class..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
-        )}
-      </div>
+        </div>
+
+        <TeacherTable teachers={filteredTeachers} onRefetch={refetch} userId={user?.id || ""} />
+        <AddTeacherDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          onSuccess={refetch}
+          userId={user?.id || ""}
+        />
+      </main>
     </div>
   );
-}
+};
+
+export default Teachers;
