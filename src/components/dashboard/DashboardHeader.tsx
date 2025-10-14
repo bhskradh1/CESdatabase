@@ -17,9 +17,13 @@ const DashboardHeader = ({ user, onSignOut }: DashboardHeaderProps) => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <GraduationCap className="h-8 w-8 text-primary" />
-              <h1 className="text-xl font-bold">Champion English School</h1>
+            <div className="flex items-center gap-3">
+              <img 
+                src="/logo.png" 
+                alt="Champion English School" 
+                className="h-10 w-10 object-contain"
+              />
+              <h1 className="text-xl font-bold hidden sm:block">Champion English School</h1>
             </div>
             <nav className="hidden md:flex items-center gap-2">
               <Button

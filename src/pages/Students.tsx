@@ -79,9 +79,15 @@ const Students = () => {
               <Trash2 className="mr-2 h-4 w-4" />
               Delete All
             </Button>
-            <Button onClick={() => setBulkPromotionOpen(true)} variant="outline" size="lg">
+            <Button 
+              onClick={() => setBulkPromotionOpen(true)} 
+              variant="outline" 
+              size="lg"
+              disabled
+              title="Bulk promotion feature coming soon"
+            >
               <TrendingUp className="mr-2 h-4 w-4" />
-              Bulk Promote
+              Bulk Promote (Coming Soon)
             </Button>
             <Button onClick={() => setExcelDialogOpen(true)} variant="outline" size="lg">
               <Upload className="mr-2 h-4 w-4" />

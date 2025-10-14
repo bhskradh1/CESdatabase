@@ -136,9 +136,11 @@ const Auth = () => {
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-4">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <GraduationCap className="h-12 w-12 text-primary" />
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="Champion English School Logo" 
+              className="h-24 w-24 object-contain"
+            />
           </div>
           <CardTitle className="text-3xl font-bold">Champion English School</CardTitle>
           <CardDescription className="text-base">
