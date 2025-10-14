@@ -74,6 +74,30 @@ const Reports = () => {
     },
   });
 
+  const { data: teachers } = useQuery({
+    queryKey: ["teachers-reports"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("teachers")
+        .select("*")
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: salaryPayments } = useQuery({
+    queryKey: ["salary-payments"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salary_payments")
+        .select("*, teachers(name, teacher_id)")
+        .order("payment_date", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
@@ -131,6 +155,36 @@ const Reports = () => {
         Remarks: p.remarks || "-",
       }));
       filename = "Payment_History.xlsx";
+    }
+
+    if (reportType === "teachers" && teachers) {
+      data = teachers.map((t: any) => ({
+        "Teacher ID": t.teacher_id || "-",
+        Name: t.name,
+        Level: t.level || "-",
+        "Class Taught": t.class_taught || "-",
+        Subject: t.subject,
+        Qualification: t.qualification,
+        Experience: t.experience,
+        Salary: t.salary,
+        Contact: t.contact,
+        Email: t.email,
+      }));
+      filename = "Teacher_Report.xlsx";
+    }
+
+    if (reportType === "teacher-salaries" && salaryPayments) {
+      data = salaryPayments.map((p: any) => ({
+        Date: new Date(p.payment_date).toLocaleDateString(),
+        "Teacher ID": p.teachers?.teacher_id || "-",
+        "Teacher Name": p.teachers?.name || "-",
+        Month: p.month,
+        Year: p.year,
+        Amount: p.amount,
+        Method: p.payment_method || "-",
+        Remarks: p.remarks || "-",
+      }));
+      filename = "Salary_Payment_History.xlsx";
     }
 
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -218,6 +272,8 @@ const Reports = () => {
                     <SelectItem value="students">Student List</SelectItem>
                     <SelectItem value="fees">Fee Status Report</SelectItem>
                     <SelectItem value="payments">Payment History</SelectItem>
+                    <SelectItem value="teachers">Teacher Details</SelectItem>
+                    <SelectItem value="teacher-salaries">Salary Payment History</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -276,6 +332,20 @@ const Reports = () => {
                     <li>• Complete payment transaction history</li>
                     <li>• Payment dates and methods</li>
                     <li>• Student-wise payment records</li>
+                  </>
+                )}
+                {reportType === "teachers" && (
+                  <>
+                    <li>• Complete teacher information</li>
+                    <li>• Qualification and experience details</li>
+                    <li>• Contact information and salary</li>
+                  </>
+                )}
+                {reportType === "teacher-salaries" && (
+                  <>
+                    <li>• Salary payment transaction history</li>
+                    <li>• Monthly payment records with Nepali months</li>
+                    <li>• Teacher-wise payment details</li>
                   </>
                 )}
               </ul>
