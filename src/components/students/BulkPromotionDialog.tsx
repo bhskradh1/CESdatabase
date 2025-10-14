@@ -202,16 +202,18 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
             .insert({
               student_id: newStudentId,
               name: student.name,
-              roll_number: student.roll_number, // Keep same roll number
+              roll_number: student.roll_number,
               class: nextClass,
-              section: student.section || nextSection, // Keep same section or use default
-              contact: student.contact, // Keep same contact
-              address: student.address, // Keep same address
-              photo_url: student.photo_url, // Keep same photo
-              total_fee: newTotalFee, // Use base fee, not adjusted
+              section: student.section || nextSection,
+              contact: student.contact || "",
+              address: student.address || "",
+              photo_url: student.photo_url || null,
+              total_fee: newTotalFee,
               previous_year_balance: previousYearBalance,
               fee_paid: 0,
               fee_paid_current_year: 0,
+              attendance_percentage: 0,
+              remarks: null,
               created_by: session.session?.user.id || "",
             })
             .select()

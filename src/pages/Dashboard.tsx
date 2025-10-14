@@ -48,6 +48,26 @@ const Dashboard = () => {
       }
 
       const totalStudents = students?.length || 0;
+
+      // Calculate student growth from last month
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      
+      const { data: lastMonthStudents } = await supabase
+        .from("students")
+        .select("id")
+        .lte("created_at", oneMonthAgo.toISOString());
+      
+      const lastMonthCount = lastMonthStudents?.length || 0;
+      const studentGrowth = lastMonthCount > 0 
+        ? Math.round(((totalStudents - lastMonthCount) / lastMonthCount) * 100)
+        : 0;
+      const studentGrowthText = studentGrowth > 0 
+        ? `+${studentGrowth}% from last month`
+        : studentGrowth < 0
+        ? `${studentGrowth}% from last month`
+        : "No change";
+
       const totalFees = students?.reduce((sum: number, s: any) => sum + Number(s.current_year_fees ?? s.total_fee), 0) || 0;
       const totalCollected = students?.reduce((sum: number, s: any) => sum + Number(s.fee_paid_current_year ?? s.fee_paid ?? 0), 0) || 0;
       const pendingFees = students?.reduce((sum: number, s: any) => sum + Math.max(0, Number(s.total_due ?? ((s.current_year_fees ?? s.total_fee) + (s.previous_year_balance ?? 0) - (s.fee_paid_current_year ?? s.fee_paid ?? 0)))), 0) || 0;
@@ -79,6 +99,7 @@ const Dashboard = () => {
 
       return {
         totalStudents,
+        studentGrowthText,
         totalFees,
         totalCollected,
         pendingFees,
@@ -113,7 +134,7 @@ const Dashboard = () => {
             title="Total Students"
             value={stats?.totalStudents || 0}
             icon={Users}
-            trend="+12% from last month"
+            trend={stats?.studentGrowthText || "Loading..."}
           />
           <StatsCard
             title="Total Fees"
