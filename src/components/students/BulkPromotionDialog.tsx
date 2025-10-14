@@ -41,11 +41,24 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
   const [nextSection, setNextSection] = useState("");
   const [newTotalFee, setNewTotalFee] = useState(0);
 
-  // Class progression mapping
+  // Class progression mapping - support both numeric and text formats
   const classProgression: Record<string, string> = {
     "Nursery": "LKG",
     "LKG": "UKG", 
-    "UKG": "1st",
+    "UKG": "1",
+    "1": "2",
+    "2": "3",
+    "3": "4",
+    "4": "5",
+    "5": "6",
+    "6": "7",
+    "7": "8",
+    "8": "9",
+    "9": "10",
+    "10": "11",
+    "11": "12",
+    "12": "Graduated",
+    // Alternative formats
     "1st": "2nd",
     "2nd": "3rd",
     "3rd": "4th",
@@ -65,6 +78,18 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
     "Nursery": ["A", "B"],
     "LKG": ["A", "B"],
     "UKG": ["A", "B"],
+    "1": ["A", "B", "C"],
+    "2": ["A", "B", "C"],
+    "3": ["A", "B", "C"],
+    "4": ["A", "B", "C"],
+    "5": ["A", "B", "C"],
+    "6": ["A", "B", "C"],
+    "7": ["A", "B", "C"],
+    "8": ["A", "B", "C"],
+    "9": ["A", "B", "C"],
+    "10": ["A", "B", "C"],
+    "11": ["Science", "Commerce", "Arts"],
+    "12": ["Science", "Commerce", "Arts"],
     "1st": ["A", "B", "C"],
     "2nd": ["A", "B", "C"],
     "3rd": ["A", "B", "C"],
@@ -84,6 +109,18 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
     "Nursery": 15000,
     "LKG": 18000,
     "UKG": 20000,
+    "1": 25000,
+    "2": 25000,
+    "3": 25000,
+    "4": 25000,
+    "5": 25000,
+    "6": 30000,
+    "7": 30000,
+    "8": 30000,
+    "9": 35000,
+    "10": 35000,
+    "11": 40000,
+    "12": 40000,
     "1st": 25000,
     "2nd": 25000,
     "3rd": 25000,
@@ -101,9 +138,13 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
   useEffect(() => {
     if (currentClass) {
       const nextClassValue = classProgression[currentClass];
+      if (!nextClassValue) {
+        console.warn(`No progression mapping found for class: ${currentClass}`);
+        return;
+      }
       setNextClass(nextClassValue);
-      setNewTotalFee(standardFees[nextClassValue] || 0);
-      setNextSection(defaultSections[nextClassValue]?.[0] || "");
+      setNewTotalFee(standardFees[nextClassValue] || 25000);
+      setNextSection(defaultSections[nextClassValue]?.[0] || "A");
     }
   }, [currentClass]);
 
@@ -169,7 +210,10 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
 
   // Helper function to generate student ID with format: C + first two letters of class + roll number
   const generateStudentId = (className: string, rollNumber: string): string => {
-    const classPrefix = className.slice(0, 2).toUpperCase();
+    if (!className || className === "Graduated") {
+      return `C${rollNumber}`;
+    }
+    const classPrefix = className.substring(0, 2).toUpperCase().replace(/[^A-Z0-9]/g, '');
     return `C${classPrefix}${rollNumber}`;
   };
 
@@ -179,6 +223,15 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
         variant: "destructive",
         title: "Error",
         description: "Please select at least one student",
+      });
+      return;
+    }
+
+    if (!nextClass || nextClass === "Graduated") {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Cannot promote: Next class is not available or students have graduated",
       });
       return;
     }
