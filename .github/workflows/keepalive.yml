@@ -3,14 +3,24 @@ name: Keep Supabase Alive
 on:
   schedule:
     - cron: '0 0 */2 * *'  # runs every 2 days at midnight UTC
-  workflow_dispatch:
+  workflow_dispatch:        # allows manual trigger
 
 jobs:
   ping:
     runs-on: ubuntu-latest
+
     steps:
       - name: Ping Supabase
         run: |
-          curl -s "https://czrosatosvrjkzxkaqxs.supabase.co/rest/v1/students?select=id&limit=1" \
-          -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
-          -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}"
+          echo "Pinging Supabase to keep it awake..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/students?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}")
+
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "✅ Supabase is awake and responded successfully!"
+          else
+            echo "⚠️ Failed to ping Supabase. HTTP status: $RESPONSE"
+            exit 1
+          fi
