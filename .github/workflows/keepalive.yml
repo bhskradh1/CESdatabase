@@ -2,25 +2,31 @@ name: Keep Supabase Alive
 
 on:
   schedule:
-    - cron: '0 0 */2 * *'  # runs every 2 days at midnight UTC
-  workflow_dispatch:        # allows manual trigger
+    - cron: '0 0 */2 * *'  # every 2 days at midnight UTC
+  workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Ping Supabase
+      - name: Debug ping Supabase
         run: |
           echo "Pinging Supabase to keep it awake..."
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/students?select=id&limit=1" \
-            -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}")
+          echo "Using URL: ${{ secrets.SUPABASE_URL }}"
+          
+          # Print partial key for confirmation (first 10 chars only)
+          echo "Using key: ${SUPABASE_SERVICE_KEY:0:10}..."
 
-          if [ "$RESPONSE" -eq 200 ]; then
-            echo "✅ Supabase is awake and responded successfully!"
-          else
-            echo "⚠️ Failed to ping Supabase. HTTP status: $RESPONSE"
-            exit 1
-          fi
+          # Run curl with verbose mode to see error details
+          curl -v "${{ secrets.SUPABASE_URL }}/rest/v1/students?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -o response.txt -w "\nHTTP STATUS: %{http_code}\n"
+
+          echo "----- Response Body -----"
+          cat response.txt
+          echo "-------------------------"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
