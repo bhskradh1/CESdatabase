@@ -744,6 +744,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       welcome_popup: {
         Row: {
           created_at: string
@@ -811,10 +832,7 @@ export type Database = {
       }
     }
     Functions: {
-      calculate_fee_due: {
-        Args: { student_uuid: string }
-        Returns: number
-      }
+      calculate_fee_due: { Args: { student_uuid: string }; Returns: number }
       calculate_total_due: {
         Args: {
           p_current_year_fees: number
@@ -827,8 +845,16 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "teacher" | "student"
       user_role: "admin" | "teacher" | "student"
     }
     CompositeTypes: {
@@ -957,6 +983,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "teacher", "student"],
       user_role: ["admin", "teacher", "student"],
     },
   },
