@@ -28,18 +28,6 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Check if email is allowed
-    const allowedEmails = ["bhaskaradhikari2061@gmail.com", "championschool38@gmail.com"];
-    if (!allowedEmails.includes(email.toLowerCase())) {
-      toast({
-        variant: "destructive",
-        title: "Access Denied",
-        description: "This email is not authorized to access the system.",
-      });
-      return;
-    }
-    
     setLoading(true);
 
     try {
