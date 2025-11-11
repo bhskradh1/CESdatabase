@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { studentFormSchema } from "@/lib/validation";
 
 interface AddStudentDialogProps {
   open: boolean;
@@ -35,6 +36,31 @@ const AddStudentDialog = ({ open, onOpenChange, onSuccess, userId }: AddStudentD
     setLoading(true);
 
     try {
+      // Validate input
+      const validationResult = studentFormSchema.safeParse({
+        student_id: formData.student_id,
+        name: formData.name,
+        roll_number: formData.roll_number,
+        class: formData.class,
+        section: formData.section || undefined,
+        contact: formData.contact || undefined,
+        address: formData.address || undefined,
+        total_fee: parseFloat(formData.total_fee) || 0,
+        photo_url: formData.photo_url || undefined,
+        remarks: formData.remarks || undefined,
+      });
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: firstError.message,
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.from("students").insert({
         student_id: formData.student_id,
         name: formData.name,

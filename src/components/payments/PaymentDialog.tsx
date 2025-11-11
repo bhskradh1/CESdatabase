@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Search, User } from "lucide-react";
+import { paymentFormSchema } from "@/lib/validation";
 
 interface PaymentDialogProps {
   open: boolean;
@@ -58,16 +59,25 @@ const PaymentDialog = ({ open, onOpenChange, onSuccess, userId }: PaymentDialogP
       return;
     }
 
-    const amount = parseFloat(formData.amount);
-    if (amount <= 0) {
+    // Validate input
+    const validationResult = paymentFormSchema.safeParse({
+      amount: parseFloat(formData.amount),
+      payment_method: formData.payment_method,
+      payment_date: formData.payment_date,
+      remarks: formData.remarks || undefined,
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Amount must be greater than 0",
+        title: "Validation Error",
+        description: firstError.message,
       });
       return;
     }
 
+    const amount = validationResult.data.amount;
     setLoading(true);
     try {
       const { error } = await supabase

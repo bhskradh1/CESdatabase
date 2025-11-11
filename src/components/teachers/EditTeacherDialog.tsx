@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { Database } from "@/integrations/supabase/types";
+import { teacherFormSchema } from "@/lib/validation";
 
 type Teacher = Database['public']['Tables']['teachers']['Row'];
 
@@ -57,6 +58,33 @@ const EditTeacherDialog = ({ open, onOpenChange, teacher, onSuccess }: EditTeach
     if (!teacher) return;
 
     setLoading(true);
+
+    // Validate input
+    const validationResult = teacherFormSchema.safeParse({
+      teacher_id: formData.teacher_id,
+      name: formData.name,
+      email: formData.email,
+      contact: formData.contact,
+      subject: formData.subject,
+      qualification: formData.qualification,
+      experience: parseInt(formData.experience) || 0,
+      level: formData.level,
+      class_taught: formData.class_taught || undefined,
+      salary: parseFloat(formData.salary) || 0,
+      photo_url: formData.photo_url || undefined,
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: firstError.message,
+      });
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabase
       .from("teachers")
       .update({

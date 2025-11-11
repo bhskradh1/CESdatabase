@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { teacherFormSchema } from "@/lib/validation";
 
 interface AddTeacherDialogProps {
   open: boolean;
@@ -36,6 +37,32 @@ const AddTeacherDialog = ({ open, onOpenChange, onSuccess, userId }: AddTeacherD
     setLoading(true);
 
     try {
+      // Validate input
+      const validationResult = teacherFormSchema.safeParse({
+        teacher_id: formData.teacher_id,
+        name: formData.name,
+        email: formData.email,
+        contact: formData.contact,
+        subject: formData.subject,
+        qualification: formData.qualification,
+        experience: parseInt(formData.experience) || 0,
+        level: formData.level,
+        class_taught: formData.class_taught || undefined,
+        salary: parseFloat(formData.salary) || 0,
+        photo_url: formData.photo_url || undefined,
+      });
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: firstError.message,
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.from("teachers").insert({
         teacher_id: formData.teacher_id,
         name: formData.name,
