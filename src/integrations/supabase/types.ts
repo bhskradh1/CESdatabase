@@ -14,78 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      about_info: {
-        Row: {
-          created_at: string
-          id: string
-          mission: string
-          updated_at: string
-          values: string
-          vision: string
-          welcome_description: string | null
-          welcome_title: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          mission: string
-          updated_at?: string
-          values: string
-          vision: string
-          welcome_description?: string | null
-          welcome_title?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          mission?: string
-          updated_at?: string
-          values?: string
-          vision?: string
-          welcome_description?: string | null
-          welcome_title?: string | null
-        }
-        Relationships: []
-      }
-      about_media: {
-        Row: {
-          created_at: string
-          created_by: string
-          description: string | null
-          display_order: number
-          id: string
-          is_active: boolean | null
-          media_type: string
-          media_url: string
-          section: string
-          title: string
-        }
-        Insert: {
-          created_at?: string
-          created_by: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          is_active?: boolean | null
-          media_type?: string
-          media_url: string
-          section: string
-          title: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          is_active?: boolean | null
-          media_type?: string
-          media_url?: string
-          section?: string
-          title?: string
-        }
-        Relationships: []
-      }
       attendance_records: {
         Row: {
           created_at: string
@@ -131,45 +59,6 @@ export type Database = {
           },
         ]
       }
-      child_care_info: {
-        Row: {
-          created_at: string
-          description: string
-          features: Json | null
-          id: string
-          is_active: boolean | null
-          location: string | null
-          tagline: string | null
-          timing: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description: string
-          features?: Json | null
-          id?: string
-          is_active?: boolean | null
-          location?: string | null
-          tagline?: string | null
-          timing?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string
-          features?: Json | null
-          id?: string
-          is_active?: boolean | null
-          location?: string | null
-          tagline?: string | null
-          timing?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       classes: {
         Row: {
           class_name: string
@@ -196,95 +85,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      contact_messages: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          message: string
-          name: string
-          phone: string | null
-          status: string | null
-          subject: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          message: string
-          name: string
-          phone?: string | null
-          status?: string | null
-          subject: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          message?: string
-          name?: string
-          phone?: string | null
-          status?: string | null
-          subject?: string
-        }
-        Relationships: []
-      }
-      events: {
-        Row: {
-          created_at: string
-          created_by: string
-          description: string | null
-          event_date: string
-          event_time: string | null
-          id: string
-          image_url: string | null
-          is_published: boolean | null
-          location: string | null
-          target_class_id: string | null
-          target_role: Database["public"]["Enums"]["user_role"] | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by: string
-          description?: string | null
-          event_date: string
-          event_time?: string | null
-          id?: string
-          image_url?: string | null
-          is_published?: boolean | null
-          location?: string | null
-          target_class_id?: string | null
-          target_role?: Database["public"]["Enums"]["user_role"] | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string
-          description?: string | null
-          event_date?: string
-          event_time?: string | null
-          id?: string
-          image_url?: string | null
-          is_published?: boolean | null
-          location?: string | null
-          target_class_id?: string | null
-          target_role?: Database["public"]["Enums"]["user_role"] | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "events_target_class_id_fkey"
-            columns: ["target_class_id"]
-            isOneToOne: false
-            referencedRelation: "classes"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       fee_payments: {
         Row: {
@@ -337,45 +137,6 @@ export type Database = {
           },
         ]
       }
-      gallery: {
-        Row: {
-          category: string | null
-          created_at: string
-          created_by: string
-          description: string | null
-          display_order: number
-          id: string
-          image_url: string
-          is_published: boolean | null
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string
-          created_by: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          image_url: string
-          is_published?: boolean | null
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string
-          created_by?: string
-          description?: string | null
-          display_order?: number
-          id?: string
-          image_url?: string
-          is_published?: boolean | null
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       leadership: {
         Row: {
           created_at: string
@@ -414,88 +175,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      notices: {
-        Row: {
-          content: string
-          created_at: string
-          created_by: string
-          id: string
-          is_important: boolean | null
-          is_published: boolean | null
-          priority: string | null
-          target_class_id: string | null
-          target_role: Database["public"]["Enums"]["user_role"] | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          created_by: string
-          id?: string
-          is_important?: boolean | null
-          is_published?: boolean | null
-          priority?: string | null
-          target_class_id?: string | null
-          target_role?: Database["public"]["Enums"]["user_role"] | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          created_by?: string
-          id?: string
-          is_important?: boolean | null
-          is_published?: boolean | null
-          priority?: string | null
-          target_class_id?: string | null
-          target_role?: Database["public"]["Enums"]["user_role"] | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "notices_target_class_id_fkey"
-            columns: ["target_class_id"]
-            isOneToOne: false
-            referencedRelation: "classes"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      popup_images: {
-        Row: {
-          created_at: string
-          display_order: number
-          id: string
-          image_url: string
-          popup_id: string
-        }
-        Insert: {
-          created_at?: string
-          display_order?: number
-          id?: string
-          image_url: string
-          popup_id: string
-        }
-        Update: {
-          created_at?: string
-          display_order?: number
-          id?: string
-          image_url?: string
-          popup_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "popup_images_popup_id_fkey"
-            columns: ["popup_id"]
-            isOneToOne: false
-            referencedRelation: "welcome_popup"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       profiles: {
         Row: {
@@ -540,45 +219,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      results: {
-        Row: {
-          created_at: string
-          created_by: string
-          description: string | null
-          file_url: string
-          id: string
-          is_published: boolean | null
-          published_date: string
-          result_type: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by: string
-          description?: string | null
-          file_url: string
-          id?: string
-          is_published?: boolean | null
-          published_date?: string
-          result_type?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string
-          description?: string | null
-          file_url?: string
-          id?: string
-          is_published?: boolean | null
-          published_date?: string
-          result_type?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       salary_payments: {
         Row: {
@@ -762,27 +402,6 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
-        }
-        Relationships: []
-      }
-      welcome_popup: {
-        Row: {
-          created_at: string
-          id: string
-          is_active: boolean | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_active?: boolean | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_active?: boolean | null
-          updated_at?: string
         }
         Relationships: []
       }

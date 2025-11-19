@@ -13,7 +13,6 @@ import Payments from "./pages/Payments";
 import Reports from "./pages/Reports";
 import Teachers from "./pages/Teachers";
 import NotFound from "./pages/NotFound";
-import OfflineIndicator from "./components/OfflineIndicator";
 import { dataService } from "./lib/data-service";
 import { syncService } from "./lib/sync-service";
 
@@ -54,11 +53,6 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <div className="min-h-screen bg-background">
-            {/* Offline Status Indicator */}
-            <div className="fixed top-4 right-4 z-50">
-              <OfflineIndicator />
-            </div>
-            
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
