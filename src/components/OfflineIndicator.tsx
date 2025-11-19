@@ -42,7 +42,7 @@ export const OfflineIndicator = () => {
 
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-2">
+      <div className="fixed bottom-4 right-4 z-50 bg-card border border-border rounded-lg shadow-lg p-3 flex items-center gap-2">
         {/* Online/Offline Status */}
         <Tooltip>
           <TooltipTrigger asChild>
