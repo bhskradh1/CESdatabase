@@ -1,4 +1,4 @@
 student_id,name,roll_number,class,section,contact,address,total_fee,photo_url,remarks
-STU001,John Doe,101,10,A,+1234567890,123 Main St,5000,https://example.com/photo1.jpg,Excellent student
-STU002,Jane Smith,102,10,A,+1234567891,456 Oak Ave,5000,https://example.com/photo2.jpg,Good attendance
-STU003,Bob Johnson,103,10,B,+1234567892,789 Pine Rd,5000,,Needs improvement
+STU001,John Doe,101,10,A,+1234567890,123 Main St,5000,,Good student
+STU002,Jane Smith,102,10,B,+9876543210,456 Oak Ave,5500,https://example.com/photo.jpg,Excellent performance
+STU003,Bob Johnson,103,9,A,+1112223333,789 Pine Rd,4500,,
