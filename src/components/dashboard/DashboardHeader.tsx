@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { GraduationCap, LogOut, LayoutDashboard, Users, Calendar, FileText, CreditCard, UserCircle } from "lucide-react";
 import { User } from "@supabase/supabase-js";
 import { useNavigate, useLocation } from "react-router-dom";
-import OfflineIndicator from "@/components/OfflineIndicator";
 
 interface DashboardHeaderProps {
   user: User | null;
@@ -78,7 +77,6 @@ const DashboardHeader = ({ user, onSignOut }: DashboardHeaderProps) => {
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            <OfflineIndicator />
             <div className="text-right hidden sm:block">
               <p className="text-sm font-medium">{user?.user_metadata?.full_name || user?.email}</p>
               <p className="text-xs text-muted-foreground">{user?.email}</p>

@@ -15,6 +15,7 @@ import Teachers from "./pages/Teachers";
 import NotFound from "./pages/NotFound";
 import { dataService } from "./lib/data-service";
 import { syncService } from "./lib/sync-service";
+import OfflineIndicator from "./components/OfflineIndicator";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <OfflineIndicator />
         <BrowserRouter>
           <div className="min-h-screen bg-background">
             <Routes>
