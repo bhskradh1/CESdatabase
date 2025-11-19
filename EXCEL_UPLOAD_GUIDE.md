@@ -14,19 +14,25 @@ The Excel upload feature allows you to bulk import student data from Excel files
 - Use this as a reference for your Excel file structure
 
 ### 3. Prepare Your Excel File
+
+**IMPORTANT**: The upload automatically handles system fields (created_by, created_at, updated_at, id). **DO NOT** include these fields in your Excel file - they will be set automatically by the system to comply with Row Level Security (RLS) policies.
+
 Your Excel file should have the following columns (in any order):
 
-| Column Name | Required | Description | Example |
-|-------------|----------|-------------|---------|
-| student_id | Yes | Unique student identifier | STU001 |
-| name | Yes | Full name of the student | John Doe |
-| roll_number | Yes | Roll number in class | 101 |
-| class | Yes | Class/grade | 10 |
-| section | No | Section (A, B, C, etc.) | A |
-| contact | No | Phone number | +1234567890 |
-| address | No | Student's address | 123 Main St |
-| total_fee | No | Total fee amount | 5000 |
-| remarks | No | Additional notes | Excellent student |
+| Column Name | Required | Description | Example | Notes |
+|-------------|----------|-------------|---------|-------|
+| student_id | ✅ Yes | Unique student identifier | STU001 | Must be unique |
+| name | ✅ Yes | Full name of the student | John Doe | |
+| roll_number | ✅ Yes | Roll number in class | 101 | |
+| class | ✅ Yes | Class/grade | 10 | |
+| section | ⚪ No | Section (A, B, C, etc.) | A | Leave empty if not needed |
+| contact | ⚪ No | Phone number | +1234567890 | Numbers, spaces, +, -, () only |
+| address | ⚪ No | Student's address | 123 Main St | |
+| total_fee | ⚪ No | Total fee amount | 5000 | Must be a number (defaults to 0) |
+| photo_url | ⚪ No | Photo URL | https://example.com/photo.jpg | Leave empty if no photo |
+| remarks | ⚪ No | Additional notes | Excellent student | |
+
+**✅ = Required   ⚪ = Optional**
 
 ### 4. Upload Process
 1. Select your Excel file using the file input
@@ -37,6 +43,13 @@ Your Excel file should have the following columns (in any order):
 6. Review the results summary
 
 ## Features
+
+### RLS Policy Compliance
+The upload system is **fully compatible with Row Level Security (RLS)** policies:
+- **Automatic Authentication**: All records are automatically tagged with your user ID
+- **created_by Field**: Set automatically - you don't need to include it
+- **Security First**: The system ensures you can only upload as yourself (not as others)
+- **No Manual Steps**: Just prepare your Excel file and upload - security is handled automatically
 
 ### Data Validation
 - **Required Fields**: Validates that student_id, name, roll_number, and class are provided
@@ -77,7 +90,18 @@ The system automatically maps columns based on common naming patterns:
 | contact | contact | phone, mobile |
 | address | address | - |
 | total_fee | total_fee | totalfee, fee |
+| photo_url | photo_url | photourl, photo, image_url |
 | remarks | remarks | notes |
+
+**⚠️ DO NOT INCLUDE THESE COLUMNS** (handled automatically by the system):
+- `created_by` - Automatically set to your user ID for RLS compliance
+- `created_at` - Automatically set to current timestamp
+- `updated_at` - Automatically set to current timestamp
+- `id` - Automatically generated UUID
+- `fee_paid` - Automatically initialized to 0
+- `fee_paid_current_year` - Automatically initialized to 0
+- `previous_year_balance` - Automatically initialized to 0
+- `attendance_percentage` - Automatically initialized to 0
 
 ## Error Messages
 
@@ -98,18 +122,25 @@ The system automatically maps columns based on common naming patterns:
 ## Best Practices
 
 1. **Use the Template**: Download and use the provided template as a starting point
-2. **Test with Small Files**: Start with a small batch to test the format
-3. **Check Data Quality**: Ensure all required fields are filled
-4. **Unique Student IDs**: Make sure student_id values are unique
-5. **Backup Data**: Always backup your data before bulk operations
+2. **Only Include User Data**: Never add system columns (created_by, id, timestamps) - these are auto-generated
+3. **RLS Compliance**: You must be logged in as an admin to upload - the system automatically associates records with your user ID
+4. **Test with Small Files**: Start with a small batch (5-10 records) to test the format
+5. **Check Data Quality**: Ensure all required fields (✅) are filled
+6. **Unique Student IDs**: Make sure student_id values are unique across all students
+7. **Backup Data**: Always backup your data before bulk operations
+8. **Optional Fields**: Leave optional fields (⚪) empty if you don't have the data - don't use "N/A" or placeholder text
 
 ## Troubleshooting
 
 ### Common Issues
-1. **File Not Parsing**: Ensure the file is a valid Excel format
-2. **Validation Errors**: Check that all required columns are present and filled
+1. **File Not Parsing**: Ensure the file is a valid Excel format (.xlsx or .xls)
+2. **Validation Errors**: Check that all required columns (✅) are present and filled
 3. **Upload Failures**: Check network connection and try smaller batches
 4. **Duplicate Errors**: Ensure student_id values are unique
+5. **RLS Policy Violation**: 
+   - Make sure you're logged in as an admin
+   - Don't include `created_by` field in your Excel - it's added automatically
+   - The system must be able to verify your authentication
 
 ### Getting Help
 - Check the validation errors for specific row issues
