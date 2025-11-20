@@ -291,13 +291,26 @@ const StudentPromotionDialog = ({ open, onOpenChange, student, onSuccess }: Stud
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <Label className="text-sm text-muted-foreground">Current Total Fee</Label>
+                  <Label className="text-sm text-muted-foreground">Current Year Fee</Label>
                   <p className="font-medium">Rs. {student.total_fee.toLocaleString()}</p>
                 </div>
                 <div>
-                  <Label className="text-sm text-muted-foreground">Current Fee Paid</Label>
-                  <p className="font-medium">Rs. {student.fee_paid.toLocaleString()}</p>
+                  <Label className="text-sm text-muted-foreground">Previous Year Balance</Label>
+                  <p className={`font-medium ${(student.previous_year_balance || 0) > 0 ? 'text-destructive' : (student.previous_year_balance || 0) < 0 ? 'text-green-600' : ''}`}>
+                    Rs. {(student.previous_year_balance || 0).toLocaleString()}
+                  </p>
                 </div>
+                <div>
+                  <Label className="text-sm text-muted-foreground">Current Total Payable</Label>
+                  <p className="font-medium">Rs. {totalPayable.toLocaleString()}</p>
+                </div>
+                <div>
+                  <Label className="text-sm text-muted-foreground">Current Fee Paid</Label>
+                  <p className="font-medium">Rs. {totalPaid.toLocaleString()}</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 pt-2">
                 <div>
                   <Label className="text-sm text-muted-foreground">Current Fee Due</Label>
                   <p className={`font-medium ${currentFeeDue > 0 ? 'text-destructive' : 'text-green-600'}`}>

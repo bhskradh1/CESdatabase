@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Wifi, WifiOff, RefreshCw, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Wifi, WifiOff, RefreshCw, AlertCircle, GripVertical } from 'lucide-react';
 import { syncService, SyncStatus } from '@/lib/sync-service';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,10 +13,60 @@ export const OfflineIndicator = () => {
     isSyncing: false
   });
 
+  const [position, setPosition] = useState(() => {
+    const saved = localStorage.getItem('offlineIndicatorPosition');
+    return saved ? JSON.parse(saved) : { x: window.innerWidth - 300, y: window.innerHeight - 100 };
+  });
+  
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef<{ startX: number; startY: number; initialX: number; initialY: number } | null>(null);
+
   useEffect(() => {
     const unsubscribe = syncService.addSyncListener(setSyncStatus);
     return unsubscribe;
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('offlineIndicatorPosition', JSON.stringify(position));
+  }, [position]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialX: position.x,
+      initialY: position.y
+    };
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !dragRef.current) return;
+      
+      const deltaX = e.clientX - dragRef.current.startX;
+      const deltaY = e.clientY - dragRef.current.startY;
+      
+      setPosition({
+        x: Math.max(0, Math.min(window.innerWidth - 300, dragRef.current.initialX + deltaX)),
+        y: Math.max(0, Math.min(window.innerHeight - 100, dragRef.current.initialY + deltaY))
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      dragRef.current = null;
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging]);
 
   const handleSyncNow = async () => {
     if (syncStatus.isOnline && !syncStatus.isSyncing) {
@@ -42,7 +92,22 @@ export const OfflineIndicator = () => {
 
   return (
     <TooltipProvider>
-      <div className="fixed bottom-4 right-4 z-50 bg-card border border-border rounded-lg shadow-lg p-3 flex items-center gap-2">
+      <div 
+        className="fixed z-50 bg-card border border-border rounded-lg shadow-lg p-3 flex items-center gap-2 cursor-move select-none"
+        style={{ 
+          left: `${position.x}px`, 
+          top: `${position.y}px`,
+          opacity: isDragging ? 0.8 : 1
+        }}
+      >
+        {/* Drag Handle */}
+        <div 
+          onMouseDown={handleMouseDown}
+          className="cursor-grab active:cursor-grabbing flex items-center"
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+
         {/* Online/Offline Status */}
         <Tooltip>
           <TooltipTrigger asChild>
