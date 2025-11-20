@@ -179,7 +179,9 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
     let grandTotalAll = 0;
 
     selected.forEach(student => {
-      const feeDue = student.total_fee - (student.fee_paid_current_year ?? student.fee_paid ?? 0);
+      const totalPayable = (student.total_fee || 0) + (student.previous_year_balance || 0);
+      const totalPaid = student.fee_paid_current_year || 0;
+      const feeDue = totalPayable - totalPaid;
       if (feeDue < 0) {
         totalExcess += Math.abs(feeDue);
         studentsWithExcess++;
@@ -244,7 +246,9 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
       // Create new student records for next class
       const newStudents = await Promise.all(
         selected.map(async (student) => {
-          const currentFeeDue = student.total_fee - (student.fee_paid_current_year ?? student.fee_paid ?? 0);
+          const totalPayable = (student.total_fee || 0) + (student.previous_year_balance || 0);
+          const totalPaid = student.fee_paid_current_year || 0;
+          const currentFeeDue = totalPayable - totalPaid;
           const previousYearBalance = currentFeeDue; // Positive = outstanding, Negative = excess
 
           // Generate new student ID with format: C + first two letters of class + roll number

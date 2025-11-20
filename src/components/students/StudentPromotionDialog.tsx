@@ -20,6 +20,8 @@ interface Student {
   section: string | null;
   total_fee: number;
   fee_paid: number;
+  previous_year_balance?: number;
+  fee_paid_current_year?: number;
 }
 
 interface StudentPromotionDialogProps {
@@ -105,7 +107,10 @@ const StudentPromotionDialog = ({ open, onOpenChange, student, onSuccess }: Stud
     }
   }, [student]);
 
-  const currentFeeDue = student ? student.total_fee - student.fee_paid : 0;
+  // Calculate total payable this year = base fee + previous year balance
+  const totalPayable = student ? (student.total_fee || 0) + (student.previous_year_balance || 0) : 0;
+  const totalPaid = student ? (student.fee_paid_current_year || 0) : 0;
+  const currentFeeDue = totalPayable - totalPaid;
   const carryForwardAmount = currentFeeDue < 0 ? Math.abs(currentFeeDue) : 0;
   const outstandingDue = currentFeeDue > 0 ? currentFeeDue : 0;
   // Total payable for next year = base fee + previous year balance (positive for outstanding, negative for excess)
