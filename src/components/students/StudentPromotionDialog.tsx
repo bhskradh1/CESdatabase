@@ -161,7 +161,7 @@ const StudentPromotionDialog = ({ open, onOpenChange, student, onSuccess }: Stud
       // Calculate previous year balance (negative for excess payment, positive for outstanding due)
       const previousYearBalance = currentFeeDue; // Positive = outstanding, Negative = excess
 
-      // Create new student record for next class
+      // Create new student record for next class with all details copied
       const { data: newStudent, error: createError } = await supabase
         .from("students")
         .insert({
@@ -170,6 +170,9 @@ const StudentPromotionDialog = ({ open, onOpenChange, student, onSuccess }: Stud
           roll_number: newRollNumber || `${nextClass}-${Date.now()}`,
           class: nextClass,
           section: nextSection,
+          contact: (student as any).contact || null,
+          address: (student as any).address || null,
+          photo_url: (student as any).photo_url || null,
           total_fee: newTotalFee, // Use base fee, not adjusted
           previous_year_balance: previousYearBalance,
           fee_paid: 0,
@@ -401,13 +404,13 @@ const StudentPromotionDialog = ({ open, onOpenChange, student, onSuccess }: Stud
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="newTotalFee">New Total Fee</Label>
+                  <Label htmlFor="newTotalFee">Current Year Fee</Label>
                   <Input
                     id="newTotalFee"
                     type="number"
                     value={newTotalFee}
                     onChange={(e) => setNewTotalFee(Number(e.target.value))}
-                    placeholder="Enter new total fee"
+                    placeholder="Enter current year fee"
                   />
                 </div>
               </div>

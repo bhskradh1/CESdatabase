@@ -411,7 +411,7 @@ const BulkPromotionDialog = ({ open, onOpenChange, students, currentClass, onSuc
                   <p className="text-lg font-semibold">{nextSection}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">New Total Fee</label>
+                  <label className="text-sm font-medium">Current Year Fee</label>
                   <p className="text-lg font-semibold">Rs. {newTotalFee.toLocaleString()}</p>
                 </div>
               </div>
