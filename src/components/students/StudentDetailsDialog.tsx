@@ -111,18 +111,15 @@ const StudentDetailsDialog = ({ open, onOpenChange, student }: StudentDetailsDia
               Fee Information
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-muted/50 p-3 rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">Total Fee</p>
-                <p className="text-lg font-bold">₹{student.total_fee.toLocaleString()}</p>
-              </div>
-              {prevBal !== 0 && (
-                <div className={`${prevBal > 0 ? 'bg-orange-50 dark:bg-orange-950' : 'bg-blue-50 dark:bg-blue-950'} p-3 rounded-lg`}>
-                  <p className="text-xs text-muted-foreground mb-1">Previous Balance</p>
-                  <p className={`text-lg font-bold ${prevBal > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'}`}>
-                    ₹{prevBal.toLocaleString()}
+              <div className="bg-primary/10 p-3 rounded-lg">
+                <p className="text-xs text-muted-foreground mb-1">Total Payable</p>
+                <p className="text-lg font-bold">₹{(student.total_fee + prevBal).toLocaleString()}</p>
+                {prevBal !== 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    (₹{student.total_fee.toLocaleString()} {prevBal > 0 ? '+' : ''} ₹{Math.abs(prevBal).toLocaleString()})
                   </p>
-                </div>
-              )}
+                )}
+              </div>
               <div className="bg-green-50 dark:bg-green-950 p-3 rounded-lg">
                 <p className="text-xs text-muted-foreground mb-1">Fee Paid</p>
                 <p className="text-lg font-bold text-green-600 dark:text-green-400">
