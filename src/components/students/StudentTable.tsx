@@ -155,7 +155,7 @@ const StudentTable = ({ students, onRefetch }: StudentTableProps) => {
             <TableHead>Roll</TableHead>
             <TableHead>Class</TableHead>
             <TableHead>Contact</TableHead>
-            <TableHead>Total Fee</TableHead>
+            <TableHead>Total Payable</TableHead>
             <TableHead>Fee Paid</TableHead>
             <TableHead>Fee Due</TableHead>
             <TableHead>Status</TableHead>
@@ -180,7 +180,21 @@ const StudentTable = ({ students, onRefetch }: StudentTableProps) => {
                   {student.class} {student.section && `- ${student.section}`}
                 </TableCell>
                 <TableCell>{student.contact || "-"}</TableCell>
-                <TableCell>Rs. {student.total_fee.toLocaleString()}</TableCell>
+                {/* Total Payable = Current Year Fee + Previous Year Balance */}
+                {(() => {
+                  const prevBal = (student as any).previous_year_balance ?? 0;
+                  const totalPayable = student.total_fee + prevBal;
+                  return (
+                    <TableCell>
+                      Rs. {totalPayable.toLocaleString()}
+                      {prevBal !== 0 && (
+                        <span className="text-xs text-muted-foreground block">
+                          ({student.total_fee.toLocaleString()} {prevBal > 0 ? '+' : ''} {prevBal !== 0 ? prevBal.toLocaleString() : ''})
+                        </span>
+                      )}
+                    </TableCell>
+                  );
+                })()}
                 {/* Displayed paid should exclude previous-year carry-forward/outstanding adjustments */}
                 {(() => {
                   const ledgerAdjustments = carryForwardMap[student.id] || 0; // carry_forward + outstanding_due
