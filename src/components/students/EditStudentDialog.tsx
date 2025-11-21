@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { studentFormSchema } from "@/lib/validation";
+import { Upload, X, Image as ImageIcon } from "lucide-react";
 
 interface Student {
   id: string;
@@ -31,6 +32,9 @@ interface EditStudentDialogProps {
 const EditStudentDialog = ({ open, onOpenChange, student, onSuccess }: EditStudentDialogProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string>("");
   const [formData, setFormData] = useState({
     student_id: "",
     name: "",
@@ -58,8 +62,67 @@ const EditStudentDialog = ({ open, onOpenChange, student, onSuccess }: EditStude
         photo_url: (student as any).photo_url || "",
         remarks: student.remarks || "",
       });
+      setPhotoPreview((student as any).photo_url || "");
     }
   }, [student]);
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          variant: "destructive",
+          title: "Invalid file",
+          description: "Please select an image file",
+        });
+        return;
+      }
+      setPhotoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadPhoto = async (): Promise<string | null> => {
+    if (!photoFile) return formData.photo_url || null;
+
+    setUploading(true);
+    try {
+      const fileExt = photoFile.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('student-photos')
+        .upload(filePath, photoFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('student-photos')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: error.message,
+      });
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const clearPhoto = () => {
+    setPhotoFile(null);
+    setPhotoPreview("");
+    setFormData({ ...formData, photo_url: "" });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,19 +130,23 @@ const EditStudentDialog = ({ open, onOpenChange, student, onSuccess }: EditStude
 
     setLoading(true);
 
-    // Validate input
-    const validationResult = studentFormSchema.safeParse({
-      student_id: formData.student_id,
-      name: formData.name,
-      roll_number: formData.roll_number,
-      class: formData.class,
-      section: formData.section || undefined,
-      contact: formData.contact || undefined,
-      address: formData.address || undefined,
-      total_fee: parseFloat(formData.total_fee) || 0,
-      photo_url: formData.photo_url || undefined,
-      remarks: formData.remarks || undefined,
-    });
+    try {
+      // Upload photo if selected
+      const photoUrl = await uploadPhoto();
+
+      // Validate input
+      const validationResult = studentFormSchema.safeParse({
+        student_id: formData.student_id,
+        name: formData.name,
+        roll_number: formData.roll_number,
+        class: formData.class,
+        section: formData.section || undefined,
+        contact: formData.contact || undefined,
+        address: formData.address || undefined,
+        total_fee: parseFloat(formData.total_fee) || 0,
+        photo_url: photoUrl || undefined,
+        remarks: formData.remarks || undefined,
+      });
 
     if (!validationResult.success) {
       const firstError = validationResult.error.errors[0];
@@ -103,7 +170,7 @@ const EditStudentDialog = ({ open, onOpenChange, student, onSuccess }: EditStude
         contact: formData.contact || null,
         address: formData.address || null,
         total_fee: parseFloat(formData.total_fee) || 0,
-        photo_url: formData.photo_url || null,
+        photo_url: photoUrl || null,
         remarks: formData.remarks || null,
       })
       .eq("id", student.id);
@@ -124,7 +191,15 @@ const EditStudentDialog = ({ open, onOpenChange, student, onSuccess }: EditStude
       onOpenChange(false);
       onSuccess();
     }
-  };
+  } catch (error: any) {
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: error.message,
+    });
+    setLoading(false);
+  }
+};
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -198,14 +273,43 @@ const EditStudentDialog = ({ open, onOpenChange, student, onSuccess }: EditStude
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="photo_url">Photo URL</Label>
-            <Input
-              id="photo_url"
-              type="url"
-              placeholder="https://example.com/photo.jpg"
-              value={formData.photo_url}
-              onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
-            />
+            <Label htmlFor="photo">Student Photo</Label>
+            <div className="flex items-start gap-4">
+              <div className="flex-1">
+                <Input
+                  id="photo"
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoSelect}
+                  className="cursor-pointer"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Upload from gallery (JPG, PNG, WEBP)
+                </p>
+              </div>
+              {(photoPreview || formData.photo_url) && (
+                <div className="relative w-20 h-20 rounded border">
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="Preview" className="w-full h-full object-cover rounded" />
+                  ) : formData.photo_url ? (
+                    <img src={formData.photo_url} alt="Preview" className="w-full h-full object-cover rounded" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-muted">
+                      <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute -top-2 -right-2 h-6 w-6"
+                    onClick={clearPhoto}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="address">Address</Label>
@@ -227,8 +331,8 @@ const EditStudentDialog = ({ open, onOpenChange, student, onSuccess }: EditStude
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Updating..." : "Update Student"}
+            <Button type="submit" disabled={loading || uploading}>
+              {uploading ? "Uploading..." : loading ? "Updating..." : "Update Student"}
             </Button>
           </div>
         </form>
