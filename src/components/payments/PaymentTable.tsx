@@ -88,7 +88,8 @@ const PaymentTable = ({ payments, onViewReceipt, onPrintReceipt, onRefetch }: Pa
         <TableHeader>
           <TableRow>
             <TableHead>Student</TableHead>
-            <TableHead>Amount</TableHead>
+            <TableHead>Total Payable</TableHead>
+            <TableHead>Amount Paid</TableHead>
             <TableHead>Method</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Remarks</TableHead>
@@ -105,6 +106,17 @@ const PaymentTable = ({ payments, onViewReceipt, onPrintReceipt, onRefetch }: Pa
                     {payment.students?.student_id} • {payment.students?.class}
                     {payment.students?.section && `-${payment.students.section}`}
                   </div>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="font-semibold">
+                  Rs. {((payment.students?.total_fee || 0) + (payment.students?.previous_year_balance || 0)).toLocaleString()}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Current: Rs. {(payment.students?.total_fee || 0).toLocaleString()}
+                  {payment.students?.previous_year_balance > 0 && (
+                    <> • Previous: Rs. {payment.students.previous_year_balance.toLocaleString()}</>
+                  )}
                 </div>
               </TableCell>
               <TableCell>
