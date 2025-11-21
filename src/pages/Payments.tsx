@@ -76,7 +76,8 @@ const Payments = () => {
             class,
             section,
             total_fee,
-            fee_paid
+            fee_paid,
+            previous_year_balance
           )
         `)
         .order("created_at", { ascending: false });
