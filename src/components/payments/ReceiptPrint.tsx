@@ -19,8 +19,9 @@ interface ReceiptPrintProps {
       class: string;
       section: string | null;
       total_fee: number;
-    fee_paid: number;
-    fee_paid_current_year?: number;
+      fee_paid: number;
+      fee_paid_current_year?: number;
+      previous_year_balance?: number;
     };
   };
   open: boolean;
@@ -169,15 +170,25 @@ const ReceiptPrint = ({ payment, open, onOpenChange }: ReceiptPrintProps) => {
               
               <div className="space-y-2 print:space-y-1">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground print:text-xs">Total Fee:</span>
+                  <span className="text-muted-foreground print:text-xs">Current Year Fee:</span>
                   <span className="font-semibold print:text-sm">Rs. {payment.students.total_fee.toLocaleString()}</span>
+                </div>
+                {prevBal > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground print:text-xs">Previous Balance:</span>
+                    <span className="font-semibold print:text-sm">Rs. {prevBal.toLocaleString()}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t pt-1">
+                  <span className="text-muted-foreground print:text-xs">Total Payable:</span>
+                  <span className="font-semibold print:text-sm">Rs. {(payment.students.total_fee + prevBal).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground print:text-xs">Previously Paid (This Year):</span>
                   <span className="font-semibold print:text-sm">Rs. {(paidThisYear - payment.amount).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between border-t pt-2 print:pt-1">
-                  <span className="text-base font-bold print:text-sm">Amount Paid:</span>
+                  <span className="text-base font-bold print:text-sm">Amount Paid Now:</span>
                   <span className="text-xl font-bold text-primary print:text-lg">Rs. {payment.amount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
