@@ -267,6 +267,45 @@ export type Database = {
           },
         ]
       }
+      staff: {
+        Row: {
+          address: string | null
+          contact: string
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          photo_url: string | null
+          salary: number | null
+          staff_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          contact: string
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          photo_url?: string | null
+          salary?: number | null
+          staff_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          contact?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          photo_url?: string | null
+          salary?: number | null
+          staff_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           address: string | null
@@ -337,7 +376,6 @@ export type Database = {
           created_at: string
           created_by: string
           email: string
-          employee_type: string
           experience: number
           id: string
           level: string | null
@@ -355,7 +393,6 @@ export type Database = {
           created_at?: string
           created_by: string
           email: string
-          employee_type?: string
           experience?: number
           id?: string
           level?: string | null
@@ -373,7 +410,6 @@ export type Database = {
           created_at?: string
           created_by?: string
           email?: string
-          employee_type?: string
           experience?: number
           id?: string
           level?: string | null
