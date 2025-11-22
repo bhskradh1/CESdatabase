@@ -78,7 +78,6 @@ const TeacherTable = ({ teachers, onRefetch, userId }: TeacherTableProps) => {
               <TableHead>Photo</TableHead>
               <TableHead>Teacher ID</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
               <TableHead>Level</TableHead>
               <TableHead>Class</TableHead>
               <TableHead>Subject</TableHead>
@@ -89,7 +88,7 @@ const TeacherTable = ({ teachers, onRefetch, userId }: TeacherTableProps) => {
           <TableBody>
             {teachers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground">
+                <TableCell colSpan={8} className="text-center text-muted-foreground">
                   No teachers found
                 </TableCell>
               </TableRow>
@@ -111,7 +110,6 @@ const TeacherTable = ({ teachers, onRefetch, userId }: TeacherTableProps) => {
                   </TableCell>
                   <TableCell className="font-medium">{teacher.teacher_id || "-"}</TableCell>
                   <TableCell className="font-medium">{teacher.name}</TableCell>
-                  <TableCell>{(teacher as any).employee_type || "Teacher"}</TableCell>
                   <TableCell>{teacher.level || "-"}</TableCell>
                   <TableCell>{teacher.class_taught || "-"}</TableCell>
                   <TableCell>{teacher.subject}</TableCell>

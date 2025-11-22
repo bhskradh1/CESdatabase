@@ -1,40 +1,58 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { teacherFormSchema } from "@/lib/validation";
 import { X, Image as ImageIcon } from "lucide-react";
 
-interface AddTeacherDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
-  userId: string;
+interface Staff {
+  id: string;
+  staff_id: string | null;
+  name: string;
+  address: string | null;
+  contact: string;
+  salary: number | null;
+  photo_url: string | null;
 }
 
-const AddTeacherDialog = ({ open, onOpenChange, onSuccess, userId }: AddTeacherDialogProps) => {
+interface EditStaffDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  staff: Staff | null;
+  onSuccess: () => void;
+}
+
+const EditStaffDialog = ({ open, onOpenChange, staff, onSuccess }: EditStaffDialogProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const [formData, setFormData] = useState({
-    teacher_id: "",
+    staff_id: "",
     name: "",
-    subject: "",
+    address: "",
     contact: "",
-    email: "",
-    qualification: "",
-    experience: "",
-    level: "",
-    class_taught: "",
     salary: "",
     photo_url: "",
   });
+
+  useEffect(() => {
+    if (staff) {
+      setFormData({
+        staff_id: staff.staff_id || "",
+        name: staff.name,
+        address: staff.address || "",
+        contact: staff.contact,
+        salary: staff.salary?.toString() || "0",
+        photo_url: staff.photo_url || "",
+      });
+      setPhotoPreview(staff.photo_url || "");
+    }
+  }, [staff]);
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -96,77 +114,34 @@ const AddTeacherDialog = ({ open, onOpenChange, onSuccess, userId }: AddTeacherD
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!staff) return;
+
     setLoading(true);
 
     try {
-      // Upload photo if selected
       const photoUrl = await uploadPhoto();
 
-      // Validate input
-      const validationResult = teacherFormSchema.safeParse({
-        teacher_id: formData.teacher_id,
-        name: formData.name,
-        email: formData.email,
-        contact: formData.contact,
-        subject: formData.subject,
-        qualification: formData.qualification,
-        experience: parseInt(formData.experience) || 0,
-        level: formData.level,
-        class_taught: formData.class_taught || undefined,
-        salary: parseFloat(formData.salary) || 0,
-        photo_url: photoUrl || undefined,
-      });
-
-      if (!validationResult.success) {
-        const firstError = validationResult.error.errors[0];
-        toast({
-          variant: "destructive",
-          title: "Validation Error",
-          description: firstError.message,
-        });
-        setLoading(false);
-        return;
-      }
-
-      const { error } = await supabase.from("teachers").insert({
-        teacher_id: formData.teacher_id,
-        name: formData.name,
-        subject: formData.subject,
-        contact: formData.contact,
-        email: formData.email,
-        qualification: formData.qualification,
-        experience: parseInt(formData.experience) || 0,
-        level: formData.level,
-        class_taught: formData.class_taught || null,
-        salary: parseFloat(formData.salary) || 0,
-        photo_url: photoUrl || null,
-        created_by: userId,
-      });
+      const { error } = await supabase
+        .from("staff")
+        .update({
+          staff_id: formData.staff_id || null,
+          name: formData.name,
+          address: formData.address || null,
+          contact: formData.contact,
+          salary: parseFloat(formData.salary) || 0,
+          photo_url: photoUrl || null,
+        })
+        .eq("id", staff.id);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Teacher added successfully",
+        description: "Staff member updated successfully",
       });
 
-      setFormData({
-        teacher_id: "",
-        name: "",
-        subject: "",
-        contact: "",
-        email: "",
-        qualification: "",
-        experience: "",
-        level: "",
-        class_taught: "",
-        salary: "",
-        photo_url: "",
-      });
-      clearPhoto();
-
-      onSuccess();
       onOpenChange(false);
+      onSuccess();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -182,17 +157,16 @@ const AddTeacherDialog = ({ open, onOpenChange, onSuccess, userId }: AddTeacherD
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Teacher</DialogTitle>
+          <DialogTitle>Edit Staff Member</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="teacher_id">Teacher ID *</Label>
+              <Label htmlFor="staff_id">Staff ID</Label>
               <Input
-                id="teacher_id"
-                required
-                value={formData.teacher_id}
-                onChange={(e) => setFormData({ ...formData, teacher_id: e.target.value })}
+                id="staff_id"
+                value={formData.staff_id}
+                onChange={(e) => setFormData({ ...formData, staff_id: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -204,54 +178,23 @@ const AddTeacherDialog = ({ open, onOpenChange, onSuccess, userId }: AddTeacherD
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="level">Level *</Label>
-              <Select value={formData.level} onValueChange={(value) => setFormData({ ...formData, level: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PG">PG</SelectItem>
-                  <SelectItem value="Primary">Primary</SelectItem>
-                  <SelectItem value="Secondary">Secondary</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="class_taught">Class Taught</Label>
-              <Input
-                id="class_taught"
-                value={formData.class_taught}
-                onChange={(e) => setFormData({ ...formData, class_taught: e.target.value })}
+            <div className="space-y-2 col-span-2">
+              <Label htmlFor="address">Address</Label>
+              <Textarea
+                id="address"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                rows={3}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="subject">Subject *</Label>
+              <Label htmlFor="contact">Phone Number *</Label>
               <Input
-                id="subject"
+                id="contact"
+                type="tel"
                 required
-                value={formData.subject}
-                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="qualification">Qualification *</Label>
-              <Input
-                id="qualification"
-                required
-                value={formData.qualification}
-                onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="experience">Experience (years) *</Label>
-              <Input
-                id="experience"
-                type="number"
-                required
-                min="0"
-                value={formData.experience}
-                onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                value={formData.contact}
+                onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -266,28 +209,8 @@ const AddTeacherDialog = ({ open, onOpenChange, onSuccess, userId }: AddTeacherD
                 onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="contact">Contact *</Label>
-              <Input
-                id="contact"
-                type="tel"
-                required
-                value={formData.contact}
-                onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-            </div>
             <div className="space-y-2 col-span-2">
-              <Label htmlFor="photo">Teacher Photo</Label>
+              <Label htmlFor="photo">Staff Photo</Label>
               <div className="flex items-start gap-4">
                 <div className="flex-1">
                   <Input
@@ -326,12 +249,12 @@ const AddTeacherDialog = ({ open, onOpenChange, onSuccess, userId }: AddTeacherD
               </div>
             </div>
           </div>
-          <div className="flex gap-2 justify-end">
+          <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={loading || uploading}>
-              {uploading ? "Uploading..." : loading ? "Adding..." : "Add Teacher"}
+              {uploading ? "Uploading..." : loading ? "Updating..." : "Update Staff Member"}
             </Button>
           </div>
         </form>
@@ -340,4 +263,4 @@ const AddTeacherDialog = ({ open, onOpenChange, onSuccess, userId }: AddTeacherD
   );
 };
 
-export default AddTeacherDialog;
+export default EditStaffDialog;

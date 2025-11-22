@@ -59,12 +59,12 @@ const DashboardHeader = ({ user, onSignOut }: DashboardHeaderProps) => {
                 Payments
               </Button>
               <Button
-                variant={location.pathname === "/teachers" ? "default" : "ghost"}
-                onClick={() => navigate("/teachers")}
+                variant={location.pathname === "/teachers" || location.pathname === "/employees" ? "default" : "ghost"}
+                onClick={() => navigate("/employees")}
                 size="sm"
               >
                 <UserCircle className="mr-2 h-4 w-4" />
-                Teachers
+                Employees
               </Button>
               <Button
                 variant={location.pathname === "/reports" ? "default" : "ghost"}
