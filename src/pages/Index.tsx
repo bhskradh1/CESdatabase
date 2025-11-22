@@ -16,7 +16,7 @@ const Index = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4">
       <div className="text-center max-w-3xl space-y-8">
         <div className="flex justify-center mb-6">
           <div className="p-4 bg-primary/10 rounded-full">
@@ -31,7 +31,7 @@ const Index = () => {
           Get Started
         </Button>
       </div>
-    </div>
+    </main>
   );
 };
 
