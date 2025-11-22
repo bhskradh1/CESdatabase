@@ -25,6 +25,7 @@ const AddTeacherDialog = ({ open, onOpenChange, onSuccess, userId }: AddTeacherD
   const [formData, setFormData] = useState({
     teacher_id: "",
     name: "",
+    employee_type: "Teacher",
     subject: "",
     contact: "",
     email: "",
@@ -131,6 +132,7 @@ const AddTeacherDialog = ({ open, onOpenChange, onSuccess, userId }: AddTeacherD
       const { error } = await supabase.from("teachers").insert({
         teacher_id: formData.teacher_id,
         name: formData.name,
+        employee_type: formData.employee_type,
         subject: formData.subject,
         contact: formData.contact,
         email: formData.email,
@@ -153,6 +155,7 @@ const AddTeacherDialog = ({ open, onOpenChange, onSuccess, userId }: AddTeacherD
       setFormData({
         teacher_id: "",
         name: "",
+        employee_type: "Teacher",
         subject: "",
         contact: "",
         email: "",
@@ -203,6 +206,18 @@ const AddTeacherDialog = ({ open, onOpenChange, onSuccess, userId }: AddTeacherD
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="employee_type">Type *</Label>
+              <Select value={formData.employee_type} onValueChange={(value) => setFormData({ ...formData, employee_type: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Teacher">Teacher</SelectItem>
+                  <SelectItem value="Staff">Staff</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="level">Level *</Label>

@@ -28,6 +28,7 @@ const EditTeacherDialog = ({ open, onOpenChange, teacher, onSuccess }: EditTeach
   const [formData, setFormData] = useState({
     teacher_id: "",
     name: "",
+    employee_type: "Teacher",
     subject: "",
     contact: "",
     email: "",
@@ -44,6 +45,7 @@ const EditTeacherDialog = ({ open, onOpenChange, teacher, onSuccess }: EditTeach
       setFormData({
         teacher_id: teacher.teacher_id || "",
         name: teacher.name,
+        employee_type: (teacher as any).employee_type || "Teacher",
         subject: teacher.subject,
         contact: teacher.contact,
         email: teacher.email,
@@ -157,6 +159,7 @@ const EditTeacherDialog = ({ open, onOpenChange, teacher, onSuccess }: EditTeach
       .update({
         teacher_id: formData.teacher_id,
         name: formData.name,
+        employee_type: formData.employee_type,
         subject: formData.subject,
         contact: formData.contact,
         email: formData.email,
@@ -220,6 +223,18 @@ const EditTeacherDialog = ({ open, onOpenChange, teacher, onSuccess }: EditTeach
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="employee_type">Type</Label>
+              <Select value={formData.employee_type} onValueChange={(value) => setFormData({ ...formData, employee_type: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Teacher">Teacher</SelectItem>
+                  <SelectItem value="Staff">Staff</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="level">Level</Label>
