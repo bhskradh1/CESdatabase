@@ -322,19 +322,15 @@ const Employees = () => {
                     <TableCell>Rs. {employee.salary || 0}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        {employee.type === 'teacher' && (
-                          <Button size="sm" variant="outline" onClick={() => handleViewDetails(employee)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        )}
+                        <Button size="sm" variant="outline" onClick={() => handleViewDetails(employee)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <Button size="sm" variant="outline" onClick={() => handleEdit(employee)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        {employee.type === 'teacher' && (
-                          <Button size="sm" variant="outline" onClick={() => handleSalaryPayment(employee)}>
-                            <DollarSign className="h-4 w-4" />
-                          </Button>
-                        )}
+                        <Button size="sm" variant="outline" onClick={() => handleSalaryPayment(employee)}>
+                          <DollarSign className="h-4 w-4" />
+                        </Button>
                         <Button
                           size="sm"
                           variant="destructive"
@@ -376,26 +372,40 @@ const Employees = () => {
               onSuccess={refetchAll}
             />
             <TeacherDetailsDialog
-              open={detailsDialogOpen}
+              open={detailsDialogOpen && selectedEmployee?.type === 'teacher'}
               onOpenChange={setDetailsDialogOpen}
               teacher={selectedEmployee?.data as Teacher}
             />
             <SalaryPaymentDialog
-              open={salaryDialogOpen}
+              open={salaryDialogOpen && selectedEmployee?.type === 'teacher'}
               onOpenChange={setSalaryDialogOpen}
               teacher={selectedEmployee?.data as Teacher}
               onSuccess={refetchAll}
               userId={user?.id || ""}
             />
           </>
-        ) : (
-          <EditStaffDialog
-            open={editDialogOpen && selectedEmployee?.type === 'staff'}
-            onOpenChange={setEditDialogOpen}
-            staff={selectedEmployee?.data as Staff}
-            onSuccess={refetchAll}
-          />
-        )}
+        ) : selectedEmployee?.type === 'staff' ? (
+          <>
+            <EditStaffDialog
+              open={editDialogOpen && selectedEmployee?.type === 'staff'}
+              onOpenChange={setEditDialogOpen}
+              staff={selectedEmployee?.data as Staff}
+              onSuccess={refetchAll}
+            />
+            <StaffDetailsDialog
+              open={detailsDialogOpen && selectedEmployee?.type === 'staff'}
+              onOpenChange={setDetailsDialogOpen}
+              staff={selectedEmployee?.data as Staff}
+            />
+            <StaffSalaryPaymentDialog
+              open={salaryDialogOpen && selectedEmployee?.type === 'staff'}
+              onOpenChange={setSalaryDialogOpen}
+              staff={selectedEmployee?.data as Staff}
+              onSuccess={refetchAll}
+              userId={user?.id || ""}
+            />
+          </>
+        ) : null}
 
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>

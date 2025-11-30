@@ -306,6 +306,53 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_salary_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          id: string
+          month: string
+          payment_date: string
+          payment_method: string | null
+          remarks: string | null
+          staff_id: string
+          year: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by: string
+          id?: string
+          month: string
+          payment_date?: string
+          payment_method?: string | null
+          remarks?: string | null
+          staff_id: string
+          year: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          id?: string
+          month?: string
+          payment_date?: string
+          payment_method?: string | null
+          remarks?: string | null
+          staff_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_salary_payments_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           address: string | null

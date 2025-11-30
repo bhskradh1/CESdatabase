@@ -26,15 +26,19 @@ const TeacherDetailsDialog = ({ open, onOpenChange, teacher }: TeacherDetailsDia
             <TabsTrigger value="payments">Salary Payments</TabsTrigger>
           </TabsList>
           <TabsContent value="details" className="space-y-6">
-            {teacher.photo_url && (
-              <div className="flex justify-center">
+            <div className="flex justify-center">
+              {teacher.photo_url ? (
                 <img
                   src={teacher.photo_url}
                   alt={teacher.name}
                   className="h-32 w-32 rounded-full object-cover border-4 border-primary/20"
                 />
-              </div>
-            )}
+              ) : (
+                <div className="h-32 w-32 rounded-full bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary border-4 border-primary/20">
+                  {teacher.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground">Teacher ID</p>
