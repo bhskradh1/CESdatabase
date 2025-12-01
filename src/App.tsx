@@ -13,6 +13,7 @@ import Payments from "./pages/Payments";
 import Reports from "./pages/Reports";
 import Teachers from "./pages/Teachers";
 import Employees from "./pages/Employees";
+import SalaryReports from "./pages/SalaryReports";
 import NotFound from "./pages/NotFound";
 import { dataService } from "./lib/data-service";
 import { syncService } from "./lib/sync-service";
@@ -66,6 +67,7 @@ const App = () => {
               <Route path="/teachers" element={<Teachers />} />
               <Route path="/employees" element={<Employees />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/salary-reports" element={<SalaryReports />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
