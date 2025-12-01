@@ -20,7 +20,7 @@ const NEPALI_MONTHS = [
 const SalaryReports = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
-  const currentNepaliYear = 2081;
+  const currentNepaliYear = 2082;
   const [selectedYear, setSelectedYear] = useState(currentNepaliYear.toString());
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
   const [employeeType, setEmployeeType] = useState<"all" | "teacher" | "staff">("all");
@@ -113,7 +113,7 @@ const SalaryReports = () => {
   const isLoading = loadingTeachers || loadingStaff;
 
   // Generate year options (last 5 years)
-  const yearOptions = Array.from({ length: 5 }, (_, i) => currentNepaliYear - i);
+  const yearOptions = Array.from({ length: 5 }, (_, i) => currentNepaliYear + i);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -166,7 +166,7 @@ const SalaryReports = () => {
               <div className="flex gap-2">
                 <Input
                   type="number"
-                  placeholder="e.g., 2080"
+                  placeholder="e.g., 2082"
                   value={customYear}
                   onChange={(e) => setCustomYear(e.target.value)}
                 />
