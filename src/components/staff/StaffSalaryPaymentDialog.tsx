@@ -69,7 +69,7 @@ const StaffSalaryPaymentDialog = ({
       setFormData({
         amount: "",
         month: "",
-        year: "2081",
+        year: "2082",
         payment_date: new Date().toISOString().split('T')[0],
         payment_method: "",
         remarks: "",
@@ -93,8 +93,8 @@ const StaffSalaryPaymentDialog = ({
     "Kartik", "Mangsir", "Poush", "Magh", "Falgun", "Chaitra"
   ];
 
-  const currentNepaliYear = 2081; // Current Nepali year (BS)
-  const years = Array.from({ length: 5 }, (_, i) => currentNepaliYear - i);
+  const currentNepaliYear = 2082; // Current Nepali year (BS)
+  const years = Array.from({ length: 5 }, (_, i) => currentNepaliYear + i);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -185,7 +185,6 @@ const StaffSalaryPaymentDialog = ({
                 <SelectItem value="cash">Cash</SelectItem>
                 <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
                 <SelectItem value="cheque">Cheque</SelectItem>
-                <SelectItem value="upi">UPI</SelectItem>
               </SelectContent>
             </Select>
           </div>
