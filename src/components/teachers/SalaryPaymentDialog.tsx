@@ -37,10 +37,11 @@ const NEPALI_MONTHS = [
 const SalaryPaymentDialog = ({ open, onOpenChange, teacher, onSuccess, userId }: SalaryPaymentDialogProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const currentNepaliYear = 2081; // Current Nepali year (BS)
   const [formData, setFormData] = useState({
     amount: teacher?.salary?.toString() || "",
     month: "",
-    year: new Date().getFullYear().toString(),
+    year: currentNepaliYear.toString(),
     payment_date: new Date().toISOString().split('T')[0],
     payment_method: "",
     remarks: "",
@@ -74,7 +75,7 @@ const SalaryPaymentDialog = ({ open, onOpenChange, teacher, onSuccess, userId }:
       setFormData({
         amount: teacher.salary?.toString() || "",
         month: "",
-        year: new Date().getFullYear().toString(),
+        year: currentNepaliYear.toString(),
         payment_date: new Date().toISOString().split('T')[0],
         payment_method: "",
         remarks: "",
@@ -121,14 +122,19 @@ const SalaryPaymentDialog = ({ open, onOpenChange, teacher, onSuccess, userId }:
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="year">Year *</Label>
-            <Input
-              id="year"
-              type="number"
-              required
-              value={formData.year}
-              onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-            />
+            <Label htmlFor="year">Year (BS) *</Label>
+            <Select value={formData.year} onValueChange={(value) => setFormData({ ...formData, year: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select year" />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 5 }, (_, i) => currentNepaliYear - i).map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="amount">Amount *</Label>

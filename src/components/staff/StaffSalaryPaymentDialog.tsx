@@ -35,7 +35,7 @@ const StaffSalaryPaymentDialog = ({
   const [formData, setFormData] = useState({
     amount: "",
     month: "",
-    year: new Date().getFullYear().toString(),
+    year: "2081",
     payment_date: new Date().toISOString().split('T')[0],
     payment_method: "",
     remarks: "",
@@ -69,7 +69,7 @@ const StaffSalaryPaymentDialog = ({
       setFormData({
         amount: "",
         month: "",
-        year: new Date().getFullYear().toString(),
+        year: "2081",
         payment_date: new Date().toISOString().split('T')[0],
         payment_method: "",
         remarks: "",
@@ -89,12 +89,12 @@ const StaffSalaryPaymentDialog = ({
   };
 
   const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "Baishakh", "Jestha", "Ashadh", "Shrawan", "Bhadra", "Ashwin",
+    "Kartik", "Mangsir", "Poush", "Magh", "Falgun", "Chaitra"
   ];
 
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+  const currentNepaliYear = 2081; // Current Nepali year (BS)
+  const years = Array.from({ length: 5 }, (_, i) => currentNepaliYear - i);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -141,7 +141,7 @@ const StaffSalaryPaymentDialog = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="year">Year *</Label>
+              <Label htmlFor="year">Year (BS) *</Label>
               <Select
                 value={formData.year}
                 onValueChange={(value) => setFormData({ ...formData, year: value })}
