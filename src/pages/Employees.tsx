@@ -175,17 +175,13 @@ const Employees = () => {
   };
 
   const handleViewDetails = (employee: Employee) => {
-    if (employee.type === 'teacher') {
-      setSelectedEmployee(employee);
-      setDetailsDialogOpen(true);
-    }
+    setSelectedEmployee(employee);
+    setDetailsDialogOpen(true);
   };
 
   const handleSalaryPayment = (employee: Employee) => {
-    if (employee.type === 'teacher') {
-      setSelectedEmployee(employee);
-      setSalaryDialogOpen(true);
-    }
+    setSelectedEmployee(employee);
+    setSalaryDialogOpen(true);
   };
 
   const handleDelete = (employee: Employee) => {
