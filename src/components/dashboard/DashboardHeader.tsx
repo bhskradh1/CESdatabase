@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { GraduationCap, LogOut, LayoutDashboard, Users, Calendar, FileText, CreditCard, UserCircle } from "lucide-react";
+import { GraduationCap, LogOut, LayoutDashboard, Users, Calendar, FileText, CreditCard, UserCircle, Banknote } from "lucide-react";
 import { User } from "@supabase/supabase-js";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -73,6 +73,14 @@ const DashboardHeader = ({ user, onSignOut }: DashboardHeaderProps) => {
               >
                 <FileText className="mr-2 h-4 w-4" />
                 Reports
+              </Button>
+              <Button
+                variant={location.pathname === "/salary-reports" ? "default" : "ghost"}
+                onClick={() => navigate("/salary-reports")}
+                size="sm"
+              >
+                <Banknote className="mr-2 h-4 w-4" />
+                Salary Reports
               </Button>
             </nav>
           </div>
