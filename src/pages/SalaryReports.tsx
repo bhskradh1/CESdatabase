@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -8,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
 
 const NEPALI_MONTHS = [
   "Baishakh", "Jestha", "Ashadh", "Shrawan", "Bhadra", "Ashwin",
@@ -15,11 +18,35 @@ const NEPALI_MONTHS = [
 ];
 
 const SalaryReports = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
   const currentNepaliYear = 2081;
   const [selectedYear, setSelectedYear] = useState(currentNepaliYear.toString());
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
   const [employeeType, setEmployeeType] = useState<"all" | "teacher" | "staff">("all");
   const [customYear, setCustomYear] = useState("");
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setUser(session.user);
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setUser(session.user);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const { data: teacherPayments = [], isLoading: loadingTeachers } = useQuery({
     queryKey: ["teacher-salary-reports", selectedYear, selectedMonth],
@@ -78,16 +105,24 @@ const SalaryReports = () => {
   const totalStaffSalary = staffPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
   const grandTotal = totalTeacherSalary + totalStaffSalary;
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
   const isLoading = loadingTeachers || loadingStaff;
 
   // Generate year options (last 5 years)
   const yearOptions = Array.from({ length: 5 }, (_, i) => currentNepaliYear - i);
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Salary Reports</h1>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+      <DashboardHeader user={user} onSignOut={handleSignOut} />
+      
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Salary Reports</h1>
+        </div>
 
       {/* Filters */}
       <Card>
@@ -331,6 +366,7 @@ const SalaryReports = () => {
           </CardContent>
         </Card>
       )}
+      </div>
     </div>
   );
 };
