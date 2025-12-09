@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { offlineDb, Student, FeePayment, AttendanceRecord } from './offline-db';
+import { offlineDb, Student, FeePayment, AttendanceRecord, Teacher, Staff, SalaryPayment, StaffSalaryPayment } from './offline-db';
 import { syncService } from './sync-service';
 
 export interface DataServiceConfig {
@@ -14,7 +14,6 @@ class DataService {
   };
 
   constructor() {
-    // Initialize with current online status
     this.config.useOffline = !navigator.onLine;
   }
 
@@ -49,13 +48,11 @@ class DataService {
       _last_sync: new Date().toISOString()
     };
 
-    // Always save to offline database first
     await offlineDb.students.add(newStudent);
 
-    // If online, try to sync immediately
     if (navigator.onLine && this.config.autoSync) {
       try {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('students')
           .insert({
             id: newStudent.id,
@@ -68,21 +65,19 @@ class DataService {
             address: newStudent.address,
             total_fee: newStudent.total_fee,
             fee_paid: newStudent.fee_paid,
+            fee_paid_current_year: newStudent.fee_paid_current_year,
+            previous_year_balance: newStudent.previous_year_balance,
             attendance_percentage: newStudent.attendance_percentage,
             remarks: newStudent.remarks,
+            photo_url: newStudent.photo_url,
             created_by: newStudent.created_by
-          })
-          .select()
-          .single();
+          });
 
         if (error) throw error;
-
-        // Mark as synced
         await offlineDb.markAsSynced('students', newStudent.id);
         return { ...newStudent, _sync_pending: 0 };
       } catch (error) {
         console.error('Failed to sync student creation:', error);
-        // Student is saved offline, will sync later
       }
     }
 
@@ -90,7 +85,6 @@ class DataService {
   }
 
   async updateStudent(id: string, updates: Partial<Student>): Promise<Student> {
-    // Update offline database
     await offlineDb.students.update(id, {
       ...updates,
       updated_at: new Date().toISOString(),
@@ -101,7 +95,6 @@ class DataService {
 
     const updatedStudent = await offlineDb.students.get(id);
 
-    // If online, try to sync immediately
     if (navigator.onLine && this.config.autoSync && updatedStudent) {
       try {
         const { error } = await supabase
@@ -113,13 +106,10 @@ class DataService {
           .eq('id', id);
 
         if (error) throw error;
-
-        // Mark as synced
         await offlineDb.markAsSynced('students', id);
         return { ...updatedStudent, _sync_pending: 0 };
       } catch (error) {
         console.error('Failed to sync student update:', error);
-        // Update is saved offline, will sync later
       }
     }
 
@@ -127,14 +117,12 @@ class DataService {
   }
 
   async deleteStudent(id: string): Promise<void> {
-    // Mark as deleted in offline database
     await offlineDb.students.update(id, {
       _offline_deleted: true,
       _sync_pending: 1,
       _last_sync: new Date().toISOString()
     });
 
-    // If online, try to sync immediately
     if (navigator.onLine && this.config.autoSync) {
       try {
         const { error } = await supabase
@@ -143,13 +131,114 @@ class DataService {
           .eq('id', id);
 
         if (error) throw error;
-
-        // Remove from offline database
         await offlineDb.students.delete(id);
       } catch (error) {
         console.error('Failed to sync student deletion:', error);
-        // Deletion is queued offline, will sync later
       }
+    }
+  }
+
+  // Teacher operations
+  async getTeachers(): Promise<Teacher[]> {
+    if (this.config.useOffline || !navigator.onLine) {
+      return await offlineDb.teachers.orderBy('created_at').toArray();
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('teachers')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Failed to fetch teachers online, falling back to offline:', error);
+      return await offlineDb.teachers.orderBy('created_at').toArray();
+    }
+  }
+
+  // Staff operations
+  async getStaff(): Promise<Staff[]> {
+    if (this.config.useOffline || !navigator.onLine) {
+      return await offlineDb.staff.orderBy('created_at').toArray();
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('staff')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Failed to fetch staff online, falling back to offline:', error);
+      return await offlineDb.staff.orderBy('created_at').toArray();
+    }
+  }
+
+  // Salary Payment operations
+  async getSalaryPayments(teacherId?: string): Promise<SalaryPayment[]> {
+    if (this.config.useOffline || !navigator.onLine) {
+      if (teacherId) {
+        return await offlineDb.salaryPayments
+          .where('teacher_id')
+          .equals(teacherId)
+          .toArray();
+      }
+      return await offlineDb.salaryPayments.toArray();
+    }
+
+    try {
+      let query = supabase.from('salary_payments').select('*');
+      if (teacherId) {
+        query = query.eq('teacher_id', teacherId);
+      }
+      const { data, error } = await query.order('payment_date', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Failed to fetch salary payments online, falling back to offline:', error);
+      if (teacherId) {
+        return await offlineDb.salaryPayments
+          .where('teacher_id')
+          .equals(teacherId)
+          .toArray();
+      }
+      return await offlineDb.salaryPayments.toArray();
+    }
+  }
+
+  // Staff Salary Payment operations
+  async getStaffSalaryPayments(staffId?: string): Promise<StaffSalaryPayment[]> {
+    if (this.config.useOffline || !navigator.onLine) {
+      if (staffId) {
+        return await offlineDb.staffSalaryPayments
+          .where('staff_id')
+          .equals(staffId)
+          .toArray();
+      }
+      return await offlineDb.staffSalaryPayments.toArray();
+    }
+
+    try {
+      let query = supabase.from('staff_salary_payments').select('*');
+      if (staffId) {
+        query = query.eq('staff_id', staffId);
+      }
+      const { data, error } = await query.order('payment_date', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Failed to fetch staff salary payments online, falling back to offline:', error);
+      if (staffId) {
+        return await offlineDb.staffSalaryPayments
+          .where('staff_id')
+          .equals(staffId)
+          .toArray();
+      }
+      return await offlineDb.staffSalaryPayments.toArray();
     }
   }
 
@@ -197,13 +286,11 @@ class DataService {
       _last_sync: new Date().toISOString()
     };
 
-    // Always save to offline database first
     await offlineDb.feePayments.add(newPayment);
 
-    // If online, try to sync immediately
     if (navigator.onLine && this.config.autoSync) {
       try {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('fee_payments')
           .insert({
             id: newPayment.id,
@@ -211,20 +298,16 @@ class DataService {
             amount: newPayment.amount,
             payment_date: newPayment.payment_date,
             payment_method: newPayment.payment_method,
+            receipt_number: newPayment.receipt_number,
             remarks: newPayment.remarks,
             created_by: newPayment.created_by
-          })
-          .select()
-          .single();
+          });
 
         if (error) throw error;
-
-        // Mark as synced
         await offlineDb.markAsSynced('feePayments', newPayment.id);
         return { ...newPayment, _sync_pending: 0 };
       } catch (error) {
         console.error('Failed to sync payment creation:', error);
-        // Payment is saved offline, will sync later
       }
     }
 
@@ -280,13 +363,11 @@ class DataService {
       _last_sync: new Date().toISOString()
     };
 
-    // Always save to offline database first
     await offlineDb.attendanceRecords.add(newRecord);
 
-    // If online, try to sync immediately
     if (navigator.onLine && this.config.autoSync) {
       try {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('attendance_records')
           .insert({
             id: newRecord.id,
@@ -295,18 +376,13 @@ class DataService {
             status: newRecord.status,
             remarks: newRecord.remarks,
             created_by: newRecord.created_by
-          })
-          .select()
-          .single();
+          });
 
         if (error) throw error;
-
-        // Mark as synced
         await offlineDb.markAsSynced('attendanceRecords', newRecord.id);
         return { ...newRecord, _sync_pending: 0 };
       } catch (error) {
         console.error('Failed to sync attendance creation:', error);
-        // Record is saved offline, will sync later
       }
     }
 
@@ -336,5 +412,4 @@ class DataService {
   }
 }
 
-// Export singleton instance
 export const dataService = new DataService();
