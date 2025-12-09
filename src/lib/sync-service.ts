@@ -99,81 +99,60 @@ class SyncService {
 
   private async downloadAllFromServer() {
     try {
-      // Download students
-      const { data: students } = await supabase.from('students').select('*');
-      if (students) {
-        for (const student of students) {
-          const existing = await offlineDb.students.get(student.id);
-          if (!existing || !existing._sync_pending) {
-            await offlineDb.students.put({ ...student, _sync_pending: 0 });
-          }
-        }
+      // Fetch all data in parallel for speed
+      const [studentsRes, teachersRes, staffRes, feePaymentsRes, salaryPaymentsRes, staffSalaryPaymentsRes, attendanceRes] = await Promise.all([
+        supabase.from('students').select('*'),
+        supabase.from('teachers').select('*'),
+        supabase.from('staff').select('*'),
+        supabase.from('fee_payments').select('*'),
+        supabase.from('salary_payments').select('*'),
+        supabase.from('staff_salary_payments').select('*'),
+        supabase.from('attendance_records').select('*')
+      ]);
+
+      // Get all pending sync IDs to avoid overwriting
+      const pendingStudents = new Set((await offlineDb.students.where('_sync_pending').equals(1).primaryKeys()));
+      const pendingTeachers = new Set((await offlineDb.teachers.where('_sync_pending').equals(1).primaryKeys()));
+      const pendingStaff = new Set((await offlineDb.staff.where('_sync_pending').equals(1).primaryKeys()));
+      const pendingFeePayments = new Set((await offlineDb.feePayments.where('_sync_pending').equals(1).primaryKeys()));
+      const pendingSalaryPayments = new Set((await offlineDb.salaryPayments.where('_sync_pending').equals(1).primaryKeys()));
+      const pendingStaffSalaryPayments = new Set((await offlineDb.staffSalaryPayments.where('_sync_pending').equals(1).primaryKeys()));
+      const pendingAttendance = new Set((await offlineDb.attendanceRecords.where('_sync_pending').equals(1).primaryKeys()));
+
+      // Bulk put operations - much faster than individual puts
+      if (studentsRes.data) {
+        const toStore = studentsRes.data.filter(s => !pendingStudents.has(s.id)).map(s => ({ ...s, _sync_pending: 0 }));
+        if (toStore.length) await offlineDb.students.bulkPut(toStore);
       }
 
-      // Download teachers
-      const { data: teachers } = await supabase.from('teachers').select('*');
-      if (teachers) {
-        for (const teacher of teachers) {
-          const existing = await offlineDb.teachers.get(teacher.id);
-          if (!existing || !existing._sync_pending) {
-            await offlineDb.teachers.put({ ...teacher, _sync_pending: 0 });
-          }
-        }
+      if (teachersRes.data) {
+        const toStore = teachersRes.data.filter(t => !pendingTeachers.has(t.id)).map(t => ({ ...t, _sync_pending: 0 }));
+        if (toStore.length) await offlineDb.teachers.bulkPut(toStore);
       }
 
-      // Download staff
-      const { data: staff } = await supabase.from('staff').select('*');
-      if (staff) {
-        for (const s of staff) {
-          const existing = await offlineDb.staff.get(s.id);
-          if (!existing || !existing._sync_pending) {
-            await offlineDb.staff.put({ ...s, _sync_pending: 0 });
-          }
-        }
+      if (staffRes.data) {
+        const toStore = staffRes.data.filter(s => !pendingStaff.has(s.id)).map(s => ({ ...s, _sync_pending: 0 }));
+        if (toStore.length) await offlineDb.staff.bulkPut(toStore);
       }
 
-      // Download fee payments
-      const { data: feePayments } = await supabase.from('fee_payments').select('*');
-      if (feePayments) {
-        for (const payment of feePayments) {
-          const existing = await offlineDb.feePayments.get(payment.id);
-          if (!existing || !existing._sync_pending) {
-            await offlineDb.feePayments.put({ ...payment, _sync_pending: 0 });
-          }
-        }
+      if (feePaymentsRes.data) {
+        const toStore = feePaymentsRes.data.filter(p => !pendingFeePayments.has(p.id)).map(p => ({ ...p, _sync_pending: 0 }));
+        if (toStore.length) await offlineDb.feePayments.bulkPut(toStore);
       }
 
-      // Download salary payments
-      const { data: salaryPayments } = await supabase.from('salary_payments').select('*');
-      if (salaryPayments) {
-        for (const payment of salaryPayments) {
-          const existing = await offlineDb.salaryPayments.get(payment.id);
-          if (!existing || !existing._sync_pending) {
-            await offlineDb.salaryPayments.put({ ...payment, _sync_pending: 0 });
-          }
-        }
+      if (salaryPaymentsRes.data) {
+        const toStore = salaryPaymentsRes.data.filter(p => !pendingSalaryPayments.has(p.id)).map(p => ({ ...p, _sync_pending: 0 }));
+        if (toStore.length) await offlineDb.salaryPayments.bulkPut(toStore);
       }
 
-      // Download staff salary payments
-      const { data: staffSalaryPayments } = await supabase.from('staff_salary_payments').select('*');
-      if (staffSalaryPayments) {
-        for (const payment of staffSalaryPayments) {
-          const existing = await offlineDb.staffSalaryPayments.get(payment.id);
-          if (!existing || !existing._sync_pending) {
-            await offlineDb.staffSalaryPayments.put({ ...payment, _sync_pending: 0 });
-          }
-        }
+      if (staffSalaryPaymentsRes.data) {
+        const toStore = staffSalaryPaymentsRes.data.filter(p => !pendingStaffSalaryPayments.has(p.id)).map(p => ({ ...p, _sync_pending: 0 }));
+        if (toStore.length) await offlineDb.staffSalaryPayments.bulkPut(toStore);
       }
 
-      // Download attendance records
-      const { data: attendance } = await supabase.from('attendance_records').select('*');
-      if (attendance) {
-        for (const record of attendance) {
-          const existing = await offlineDb.attendanceRecords.get(record.id);
-          if (!existing || !existing._sync_pending) {
-            await offlineDb.attendanceRecords.put({ ...record, _sync_pending: 0 });
-          }
-        }
+      if (attendanceRes.data) {
+        const toStore = attendanceRes.data.filter(a => !pendingAttendance.has(a.id)).map(a => ({ ...a, _sync_pending: 0 }));
+        if (toStore.length) await offlineDb.attendanceRecords.bulkPut(toStore);
       }
     } catch (error) {
       console.error('Failed to download data from server:', error);
